@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listagem de Provas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    header {
+      background: #333;
+      color: #fff;
+      padding-top: 30px;
+      min-height: 70px;
+      border-bottom: #77aaff 3px solid;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+    header ul {
+      padding: 0;
+      list-style: none;
+    }
+    header li {
+      float: left;
+      display: inline;
+      padding: 0 20px 0 20px;
+    }
+    header #branding {
+      float: left;
+    }
+    header #branding h1 {
+      margin: 0;
+    }
+    header nav {
+      float: right;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #f4f4f4;
+    }
+    tr:hover {
+      background-color: #ddd;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .actions a {
+      background: #333;
+      color: #fff;
+      padding: 5px 10px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .actions a:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div id="branding">
+        <h1>Listagem de Provas</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="cadastro_prova.html">Inserir Nova Prova</a></li>          
+          <li><a href="cadastro_pergunta.html">Inserir Pergunta</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Listagem de Provas</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas de provas serão carregadas dinamicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const response = await fetch('http://localhost:3000/exams');
+      const exams = await response.json();
+      const tbody = document.querySelector('table tbody');
+
+      exams.forEach(exam => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${exam.title}</td>
+          <td class="actions">            
+            <a href="javascript:void(0);" onclick="confirmDelete('${exam._id}')" >Excluir</a>                
+            <a href="cadastro_massivo.html">Massivo</a>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+    function confirmDelete(examId) {
+            if (confirm('Tem certeza que deseja excluir esta prova?')) {
+                deleteExam(examId);
+            }
+        }
+
+        async function deleteExam(examId) {
+            try {
+                const response = await fetch(`http://localhost:3000/exams/${examId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {                    
+                    window.location.reload();
+                } else {
+                    console.error('Erro ao excluir a prova.');
+                }
+            } catch (error) {
+                console.error('Erro ao excluir a prova:', error);
+            }
+        }
+
+  </script>
+</body>
+</html>

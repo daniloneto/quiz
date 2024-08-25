@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Perguntas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    header {
+      background: #333;
+      color: #fff;
+      padding-top: 30px;
+      min-height: 70px;
+      border-bottom: #77aaff 3px solid;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+    header ul {
+      padding: 0;
+      list-style: none;
+    }
+    header li {
+      float: left;
+      display: inline;
+      padding: 0 20px 0 20px;
+    }
+    header #branding {
+      float: left;
+    }
+    header #branding h1 {
+      margin: 0;
+    }
+    header nav {
+      float: right;
+      margin-top: 10px;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="submit"] {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      border: 0;
+      cursor: pointer;
+    }
+    #newQuizTitle {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div id="branding">
+        <h1>Cadastro de Pergunta</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="provas.html">Voltar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <form id="questionForm">
+      <label for="exam">Selecione a Prova:</label>
+      <select id="exam" name="exam" required>
+        <option value="" disabled selected>Selecione uma prova</option>
+        <!-- Opções serão carregadas dinamicamente -->
+      </select>
+
+      <label for="quiz">Selecione o Quiz:</label>
+      <select id="quiz" name="quiz" required>
+        <option value="" disabled selected>Selecione um quiz</option>
+        <!-- Opções serão carregadas dinamicamente -->
+      </select>
+
+      <label for="newQuizTitle" id="newQuizTitleLabel">Título do Novo Quiz:</label>
+      <input type="text" id="newQuizTitle" name="newQuizTitle">
+
+      <label for="question">Pergunta:</label>
+      <input type="text" id="question" name="question" required>
+
+      <label for="optionA">Opção A:</label>
+      <input type="text" id="optionA" name="optionA" required>
+
+      <label for="optionB">Opção B:</label>
+      <input type="text" id="optionB" name="optionB" required>
+
+      <label for="optionC">Opção C:</label>
+      <input type="text" id="optionC" name="optionC" required>
+
+      <label for="optionD">Opção D:</label>
+      <input type="text" id="optionD" name="optionD" required>
+
+      <label for="correctOption">Opção Correta:</label>
+      <select id="correctOption" name="correctOption" required>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+
+      <input type="submit" value="Cadastrar Pergunta">
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const examSelect = document.getElementById('exam');
+      const quizSelect = document.getElementById('quiz');
+      const newQuizTitleInput = document.getElementById('newQuizTitle');
+      const newQuizTitleLabel = document.getElementById('newQuizTitleLabel');
+
+      // Carregar exames
+      const examsResponse = await fetch('http://localhost:3000/exams');
+      const exams = await examsResponse.json();
+      exams.forEach(exam => {
+        const option = document.createElement('option');
+        option.value = exam.title;
+        option.textContent = exam.title;
+        examSelect.appendChild(option);
+      });
+
+      // Carregar quizzes quando um exame é selecionado
+      examSelect.addEventListener('change', () => {
+        const selectedExam = exams.find(exam => exam.title === examSelect.value);
+        quizSelect.innerHTML = '<option value="" disabled selected>Selecione um quiz</option>'; // Limpar quizzes anteriores
+        selectedExam.quizzes.forEach(quiz => {
+          const option = document.createElement('option');
+          option.value = quiz.title;
+          option.textContent = quiz.title;
+          quizSelect.appendChild(option);
+        });
+
+        // Adicionar opção para novo quiz
+        const newQuizOption = document.createElement('option');
+        newQuizOption.value = 'new';
+        newQuizOption.textContent = 'Novo Quiz';
+        quizSelect.appendChild(newQuizOption);
+      });
+
+      // Mostrar campo para título do novo quiz
+      quizSelect.addEventListener('change', () => {
+        if (quizSelect.value === 'new') {
+          newQuizTitleInput.style.display = 'block';
+          newQuizTitleLabel.style.display = 'block';
+          newQuizTitleInput.required = true;
+        } else {
+          newQuizTitleInput.style.display = 'none';
+          newQuizTitleLabel.style.display = 'none';
+          newQuizTitleInput.required = false;
+        }
+      });
+
+      // Submeter o formulário
+      document.getElementById('questionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        // Verificar se é um novo quiz
+        if (data.quiz === 'new') {
+          if (data.newQuizTitle) {
+            data.quiz = data.newQuizTitle;
+          } else {
+            alert('Título do quiz é obrigatório.');
+            return;
+          }
+        }
+
+        const response = await fetch('http://localhost:3000/add-question', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          alert('Pergunta cadastrada com sucesso!');
+          e.target.reset();
+        } else {
+          alert('Erro ao cadastrar pergunta.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
