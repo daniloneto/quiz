@@ -94,7 +94,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch('http://localhost:3000/exams');
+      const response = await fetch('/exams');
       const exams = await response.json();
       const examsContainer = document.getElementById('exams');
 

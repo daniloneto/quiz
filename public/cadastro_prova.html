@@ -108,7 +108,7 @@
       const title = document.getElementById('title').value;
       const exam = { title, quizzes: [] };
 
-      const response = await fetch('http://localhost:3000/exams', {
+      const response = await fetch('/exams', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

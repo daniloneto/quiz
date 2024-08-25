@@ -88,7 +88,7 @@
             const examTitle = urlParams.get('exam');
             if (quizIndex !== null) {
                 try {
-                    const response = await fetch(`http://localhost:3000/exam/${examTitle}/quiz/${quizIndex}`);
+                    const response = await fetch(`/exam/${examTitle}/quiz/${quizIndex}`);
                     quizData = await response.json();
                     displayQuestion();
                 } catch (error) {
