@@ -4,11 +4,12 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const port = 3000;
 
-const uri = "mongodb+srv://daniloneto:Vaisefuder10graca@cluster0.3auv4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 app.use(cors());
