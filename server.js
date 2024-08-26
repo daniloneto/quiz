@@ -99,8 +99,8 @@ app.post('/add-question', async (req, res) => {
                     { "title": exam },
                     { $push: { quizzes: { title: quiz, questions: [newQuestion] } } }
                 );
-            }
-            res.status(200).send('Pergunta adicionada com sucesso');
+                res.status(200).send('Pergunta adicionada com sucesso');
+            }            
         } else {
             res.status(404).send('Exame não encontrado');
         }

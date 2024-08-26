@@ -1,5 +1,6 @@
 ### Node ###
 # Logs
+local
 logs
 *.log
 npm-debug.log*
