@@ -119,7 +119,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch('/exams');
+      const response = await fetch('/api/v1/exams');
       const exams = await response.json();
       const tbody = document.querySelector('table tbody');
 
@@ -143,7 +143,7 @@
 
         async function deleteExam(examId) {
             try {
-                const response = await fetch(`/exams/${examId}`, {
+                const response = await fetch(`/api/v1/exams/${examId}`, {
                     method: 'DELETE'
                 });
 

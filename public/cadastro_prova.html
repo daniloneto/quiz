@@ -108,7 +108,7 @@
       const title = document.getElementById('title').value;
       const exam = { title, quizzes: [] };
 
-      const response = await fetch('/exams', {
+      const response = await fetch('/api/v1/exams', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

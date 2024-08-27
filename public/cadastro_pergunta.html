@@ -142,7 +142,7 @@
       const newQuizTitleLabel = document.getElementById('newQuizTitleLabel');
 
       // Carregar exames
-      const examsResponse = await fetch('/exams');
+      const examsResponse = await fetch('/api/v1/exams');
       const exams = await examsResponse.json();
       exams.forEach(exam => {
         const option = document.createElement('option');
@@ -198,7 +198,7 @@
           }
         }
 
-        const response = await fetch('/add-question', {
+        const response = await fetch('/api/v1/question', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -92,9 +92,9 @@
     <div id="exams"></div>
   </div>
 
-  <script>
+  <script>    
     document.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch('/exams');
+      const response = await fetch('/api/v1/exams');
       const exams = await response.json();
       const examsContainer = document.getElementById('exams');
 

@@ -113,7 +113,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const examSelect = document.getElementById('exam');
 
-      const examsResponse = await fetch('/exams');
+      const examsResponse = await fetch('/api/v1/exams');
       const exams = await examsResponse.json();
       exams.forEach(exam => {
         const option = document.createElement('option');
@@ -135,7 +135,7 @@
             quiz: quizData
           };
 
-          const response = await fetch('/add-quiz', {
+          const response = await fetch('/api/v1/quiz', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
