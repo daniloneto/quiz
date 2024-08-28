@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Escolha seu Quiz</title>
+  <script type="module" src="./scripts/auth.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,11 +13,13 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       width: 80%;
       margin: auto;
       overflow: hidden;
     }
+
     header {
       background: #333;
       color: #fff;
@@ -23,34 +27,42 @@
       min-height: 70px;
       border-bottom: #77aaff 3px solid;
     }
+
     header a {
       color: #fff;
       text-decoration: none;
       text-transform: uppercase;
       font-size: 16px;
     }
+
     header ul {
       padding: 0;
       list-style: none;
     }
+
     header li {
       float: left;
       display: inline;
       padding: 0 20px 0 20px;
     }
+
     header #branding {
       float: left;
     }
+
     header #branding h1 {
       margin: 0;
     }
+
     header nav {
       float: right;
       margin-top: 10px;
     }
+
     .quiz-list {
       display: none;
     }
+
     .exam {
       cursor: pointer;
       background: #fff;
@@ -58,21 +70,26 @@
       padding: 10px;
       border: 1px solid #ddd;
     }
+
     .exam h2 {
       margin: 0;
     }
+
     .quiz-list h3 {
       margin: 10px 0 0 0;
     }
+
     .quiz-list ul {
       list-style: none;
       padding: 0;
     }
+
     .quiz-list li {
       margin: 5px 0;
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="container">
@@ -82,6 +99,7 @@
       <nav>
         <ul>
           <li><a href="provas.html">Provas</a></li>
+          <li><a href="logout.html">Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -92,9 +110,15 @@
     <div id="exams"></div>
   </div>
 
-  <script>    
+  <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch('/api/v1/exams');
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('/api/v1/exams', {
+        method: 'GET',
+        headers: {
+          'Authorization': authToken
+        }
+      });
       const exams = await response.json();
       const examsContainer = document.getElementById('exams');
 
@@ -102,23 +126,23 @@
         const examDiv = document.createElement('div');
         examDiv.classList.add('exam');
         examDiv.innerHTML = `<h2>${exam.title}</h2>`;
-        
+
         const quizList = document.createElement('div');
         quizList.classList.add('quiz-list');
-        
+
         exam.quizzes.forEach((quiz, index) => {
-          const quizDiv = document.createElement('div');                
-          
+          const quizDiv = document.createElement('div');
+
           const listItem = document.createElement('li');
           const link = document.createElement('a');
           link.href = `quiz.html?exam=${exam.title}&index=${index}`;
           link.textContent = quiz.title;
           listItem.appendChild(link);
-                        
+
           quizDiv.appendChild(listItem);
           quizList.appendChild(quizDiv);
         });
-        
+
         examDiv.appendChild(quizList);
         examsContainer.appendChild(examDiv);
 
@@ -129,4 +153,5 @@
     });
   </script>
 </body>
+
 </html>

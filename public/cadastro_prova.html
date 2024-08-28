@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro de Prova</title>
+  <script type="module" src="./scripts/auth.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -87,7 +88,8 @@
       <nav>
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="provas.html">Voltar</a></li>          
+          <li><a href="provas.html">Voltar</a></li>  
+          <li><a href="logout.html">Logout</a></li>        
         </ul>
       </nav>
     </div>
@@ -107,11 +109,12 @@
       e.preventDefault();
       const title = document.getElementById('title').value;
       const exam = { title, quizzes: [] };
-
+      const authToken = localStorage.getItem('authToken');
       const response = await fetch('/api/v1/exams', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
                     },
                     body: JSON.stringify(exam)
       });

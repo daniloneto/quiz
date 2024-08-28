@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
+const authenticateToken = require('../../middleware');
+/**
+ * @swagger
+ * tags:
+ *   name: Exams
+ *   description: API para gerenciamento de provas (v1)
+ */
 
 /**
  * @swagger
  * /api/v1/exam/:title/quiz/:index:
  *   get:
  *     summary: Obter um quiz de um exame
+ *     tags:
+ *       - Exams
  *     parameters:
  *       - in: path
  *         name: title
@@ -34,7 +43,7 @@ const { ObjectId } = require('mongodb');
  *       404:
  *         description: Quiz não encontrado
  */
-router.get('/exam/:title/quiz/:index', async (req, res) => {
+router.get('/exam/:title/quiz/:index',authenticateToken, async (req, res) => {
     try {
         const quizIndex = parseInt(req.params.index, 10);
         const examTitle = req.params.title;
@@ -58,6 +67,8 @@ router.get('/exam/:title/quiz/:index', async (req, res) => {
  * /api/v1/question:
  *   post:
  *     summary: Cria uma nova questão
+ *     tags:
+ *       - Exams
  *     responses:
  *       201:
  *         description: Pergunta adicionada com sucesso
@@ -66,7 +77,7 @@ router.get('/exam/:title/quiz/:index', async (req, res) => {
  *       500:
  *         description: Erro ao adicionar a pergunta
  */ 
-router.post('/question', async (req, res) => {
+router.post('/question', authenticateToken, async (req, res) => {
     try {
         const { exam, quiz, question, optionA, optionB, optionC, optionD, correctOption } = req.body;
         const collection = req.app.locals.database.collection('exams');
@@ -109,6 +120,8 @@ router.post('/question', async (req, res) => {
  * /api/v1/quiz:
  *   post:
  *     summary: Cria um novo quiz
+ *     tags:
+ *       - Exams
  *     responses:
  *       201:
  *         description: Quiz adicionada com sucesso
@@ -117,7 +130,7 @@ router.post('/question', async (req, res) => {
  *       500:
  *         description: Erro ao cadastrar o quiz
  */ 
-router.post('/quiz', async (req, res) => {
+router.post('/quiz',authenticateToken,  async (req, res) => {
     try {
         const { examTitle, quiz } = req.body;
         const collection = req.app.locals.database.collection('exams');
@@ -142,13 +155,17 @@ router.post('/quiz', async (req, res) => {
  * /api/v1/exams:
  *   post:
  *     summary: Cria uma nova prova
+ *     tags:
+ *       - Exams
  *     responses:
  *       201:
  *         description: Prova cadastrada com sucesso
  *       500:
  *         description: Erro ao cadastrar a prova
-  *   get:
+ *   get:
  *     summary: Obter lista de provas
+ *     tags:
+ *       - Exams
  *     responses:
  *       200:
  *         description: Exams
@@ -163,7 +180,7 @@ router.post('/quiz', async (req, res) => {
  *       404:
  *         description: Quiz não encontrado
  */ 
-router.post('/exams', async (req, res) => {
+router.post('/exams',authenticateToken, async (req, res) => {
     try {
         const exam = req.body;
         const collection = req.app.locals.database.collection('exams');
@@ -175,7 +192,7 @@ router.post('/exams', async (req, res) => {
     }
 });
 
-router.get('/exams', async (req, res) => {
+router.get('/exams',authenticateToken, async (req, res) => {
     try {
         const collection = req.app.locals.database.collection('exams');
         const exams = await collection.find({}).toArray();
@@ -186,7 +203,7 @@ router.get('/exams', async (req, res) => {
     }
 });
 
-router.post('/exams/:id/quizzes', async (req, res) => {
+router.post('/exams/:id/quizzes',authenticateToken, async (req, res) => {
     try {
         const examId = req.params.id;
         const { quizIndex } = req.body;
@@ -236,7 +253,7 @@ router.post('/exams/:id/quizzes', async (req, res) => {
  *       500:
  *         description: Erro ao excluir a prova
  */
-router.delete('/exams/:id', async (req, res) => {
+router.delete('/exams/:id',authenticateToken, async (req, res) => {
     try {
         const examId = req.params.id;
         const collection = req.app.locals.database.collection('exams');

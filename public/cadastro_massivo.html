@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro Massivo</title>
+  <script type="module" src="./scripts/auth.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -89,6 +90,7 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="provas.html">Voltar</a></li>
+          <li><a href="logout.html">Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -112,7 +114,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const examSelect = document.getElementById('exam');
-
+      const authToken = localStorage.getItem('authToken');
       const examsResponse = await fetch('/api/v1/exams');
       const exams = await examsResponse.json();
       exams.forEach(exam => {
@@ -123,11 +125,11 @@
       });
 
       // Submeter o formulário
-      document.getElementById('massiveForm').addEventListener('submit', async (e) => {
+      document.getElementById('massiveForm').addEventListener('submit', async (e) => {        
         e.preventDefault();
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
-
+        const authToken = localStorage.getItem('authToken');
         try {
           const quizData = JSON.parse(data.quizJson);
           const payload = {
@@ -138,7 +140,8 @@
           const response = await fetch('/api/v1/quiz', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': authToken
             },
             body: JSON.stringify(payload)
           });

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-
+const authenticateToken = require('../../middleware');
 /**
  * @swagger
  * /api/v1/backup:
@@ -14,7 +14,7 @@ const path = require('path');
  *       500:
  *         description: Erro ao fazer backup
  */
-router.get('/backup', async (req, res) => {
+router.get('/backup', authenticateToken, async (req, res) => {
     try {
         const collection = req.app.locals.database.collection('exams');
         const exams = await collection.find({}).toArray();

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Listagem de Provas</title>
+  <script type="module" src="./scripts/auth.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -97,6 +98,7 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="cadastro_prova.html">Inserir Nova Prova</a></li>          
           <li><a href="cadastro_pergunta.html">Inserir Pergunta</a></li>
+          <li><a href="logout.html">Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -118,8 +120,14 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch('/api/v1/exams');
+    document.addEventListener('DOMContentLoaded', async () => {    
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('/api/v1/exams', {
+        method: 'GET',
+        headers: {
+          'Authorization': authToken
+        }
+      });
       const exams = await response.json();
       const tbody = document.querySelector('table tbody');
 
@@ -134,6 +142,8 @@
         `;
         tbody.appendChild(row);
       });
+  
+  
     });
     function confirmDelete(examId) {
             if (confirm('Tem certeza que deseja excluir esta prova?')) {
@@ -143,8 +153,12 @@
 
         async function deleteExam(examId) {
             try {
+                const authToken = localStorage.getItem('authToken');
                 const response = await fetch(`/api/v1/exams/${examId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                      'Authorization': authToken
+                    }
                 });
 
                 if (response.ok) {                    
