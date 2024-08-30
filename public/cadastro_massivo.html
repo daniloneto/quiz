@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,62 +13,77 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       width: 80%;
       margin: auto;
       overflow: hidden;
     }
+
     header {
-      background: #333;
+      background: #3c4272;
       color: #fff;
       padding-top: 30px;
       min-height: 70px;
       border-bottom: #77aaff 3px solid;
     }
+
     header a {
       color: #fff;
       text-decoration: none;
-      text-transform: uppercase;
-      font-size: 16px;
-    }
+      text-transform: capitalize;
+      font-size: 14px;
+}
+
     header ul {
       padding: 0;
       list-style: none;
     }
+
     header li {
       float: left;
       display: inline;
       padding: 0 20px 0 20px;
     }
+
     header #branding {
       float: left;
     }
+
     header #branding h1 {
       margin: 0;
     }
+
     header nav {
       float: right;
       margin-top: 10px;
     }
+
     form {
       background: #fff;
       padding: 20px;
       margin-top: 20px;
       border: 1px solid #ddd;
     }
+
     label {
       display: block;
       margin-bottom: 10px;
     }
-    select, textarea, input[type="submit"] {
+
+    select,
+    textarea,
+    input[type="submit"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 20px;
     }
+
     textarea {
       height: 200px;
       resize: vertical;
     }
+
     input[type="submit"] {
       background: #333;
       color: #fff;
@@ -75,11 +91,13 @@
       cursor: pointer;
       border-radius: 5px;
     }
+
     input[type="submit"]:hover {
       background: #555;
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="container">
@@ -115,7 +133,13 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const examSelect = document.getElementById('exam');
       const authToken = localStorage.getItem('authToken');
-      const examsResponse = await fetch('/api/v1/exams');
+      const examsResponse = await fetch('/api/v1/exams',
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': authToken
+          }
+        });
       const exams = await examsResponse.json();
       exams.forEach(exam => {
         const option = document.createElement('option');
@@ -125,11 +149,10 @@
       });
 
       // Submeter o formulário
-      document.getElementById('massiveForm').addEventListener('submit', async (e) => {        
+      document.getElementById('massiveForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
-        const authToken = localStorage.getItem('authToken');
         try {
           const quizData = JSON.parse(data.quizJson);
           const payload = {
@@ -158,4 +181,5 @@
     });
   </script>
 </body>
+
 </html>
