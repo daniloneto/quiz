@@ -8,10 +8,6 @@ const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const authenticateToken = require('./middleware');
 
-const { swaggerUi, specsV1 } = require('./swagger');
-const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
-
 const { connectToDatabase, client } = require('./db');
 
 const app = express();
@@ -22,7 +18,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/swagger/v1', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const v1IndexRouter = require('./routes/v1/index');
 const v1BackupRouter = require('./routes/v1/backup');
