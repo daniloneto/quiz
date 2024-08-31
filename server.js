@@ -9,6 +9,9 @@ require('dotenv').config();
 const authenticateToken = require('./middleware');
 
 const { swaggerUi, specsV1 } = require('./swagger');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yaml');
+
 const { connectToDatabase, client } = require('./db');
 
 const app = express();
@@ -19,7 +22,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/swagger/v1', swaggerUi.serve, swaggerUi.setup(specsV1));
+app.use('/swagger/v1', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const v1IndexRouter = require('./routes/v1/index');
 const v1BackupRouter = require('./routes/v1/backup');
@@ -29,63 +32,16 @@ app.use('/api/v1', v1IndexRouter);
 app.use('/api/v1', v1BackupRouter);
 app.use('/api/v1', v1ExamRouter);
 
-/**
- * @swagger
- * /api/v1/register:
- *   post:
- *     summary: Cria um novo usuário
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:        
- *                 type: string
- *               password:  
- *                 type: string
- *             required:
- *               - username
- *               - password
- *     responses:
- *       201:
- *         description: Usuario adicionado com sucesso
- *       500:
- *         description: Erro ao cadastrar o usuario
- */ 
-// app.post('/api/v1/register', async (req, res) => {
-//     const { username, password } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const user = { username, password: hashedPassword };
-//     await app.locals.database.collection('users').insertOne(user);
-//     res.status(201).json({ message: 'Usuário registrado com sucesso' });
-// });
 
-/**
- * @swagger
- * /api/v1/login:
- *   post:
- *     summary: Login de usuário
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:        
- *                 type: string
- *               password:  
- *                 type: string
- *             required:
- *               - username
- *               - password
- *     responses:
- *       201:
- *         description: Autenticado com sucesso 
- *       401:
- *         description: Senha incorreta
- */ 
-app.post('/api/v1/login', async (req, res) => {
+app.post('/api/v1/register', async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = { username, password: hashedPassword };
+    await app.locals.database.collection('users').insertOne(user);
+    res.status(201).json({ message: 'Usuário registrado com sucesso' });
+});
+
+app.post('/api/v1/login', express.urlencoded({ extended: true }), async (req, res) => {
     const { username, password } = req.body;
     const user = await app.locals.database.collection('users').findOne({ username });
     if (!user) {
