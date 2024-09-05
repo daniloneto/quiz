@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const authenticateToken = require('./middleware');
-const crypo = require('crypto');
+const crypto = require('crypto');
 
 const { connectToDatabase, client } = require('./db');
 
