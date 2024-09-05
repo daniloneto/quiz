@@ -28,13 +28,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 const loginLimiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutos
     max: 10, // Limite de 10 requisições por IP
-    message: 'Too many login attempts, please try again later.'
+    handler: (req, res) => {
+        res.status(429).json({
+          message: 'Você excedeu o limite de requisições. Tente novamente mais tarde.'
+        });
+    }
 });
 
 const speedLimiter = slowDown({
     windowMs: 2 * 60 * 1000, // 2 minutos
     delayAfter: 3, // Começa a desacelerar após 3 requisições
-    delayMs: () => 1000 // Adiciona 500ms de atraso por requisição adicional
+    delayMs: () => 1000 // Adiciona 1000ms de atraso por requisição adicional
 });
 
 const v1IndexRouter = require('./routes/v1/index');
