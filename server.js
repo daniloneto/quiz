@@ -8,8 +8,6 @@ const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const authenticateToken = require('./middleware');
 const crypto = require('crypto');
-const csrf = require('csurf');
-const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
@@ -54,15 +52,8 @@ function verifyOrigin(req, res, next) {
     }
     next();
 }
-const csrfProtection = csrf({ cookie: true });
-app.use(cookieParser());
 
-app.get('/csrf-token', csrfProtection, (req, res) => {
-    res.cookie('XSRF-TOKEN', req.csrfToken(), { httpOnly: true, secure: true });
-    res.json({ csrfToken: req.csrfToken() });
-});
-
-app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, csrfProtection, async (req, res) => {
+app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, res) => {
     const { username, password } = req.body;
 
     // Validação e sanitização

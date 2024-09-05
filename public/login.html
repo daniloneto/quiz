@@ -72,32 +72,24 @@ button:hover {
             <label for="username">Usuário:</label>
             <input type="text" id="username" name="username" required>
             <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" required>
-            <input type="hidden" id="csrfToken" name="_csrf">
+            <input type="password" id="password" name="password" required>            
             <button type="submit">Login</button>
         </form>
         <div id="message"></div>
     </div>
 </body>
 </html>
-<script>
-    async function getCsrfToken() {
-        const response = await fetch('/csrf-token');
-        const data = await response.json();
-        document.getElementById('csrfToken').value = data.csrfToken;
-    }
+<script>    
 
     document.getElementById('login-form').addEventListener('submit', async function(event) {
         event.preventDefault();
         const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const csrfToken = document.getElementById('csrfToken').value;
+        const password = document.getElementById('password').value;        
 
         const response = await fetch('/proxy-login', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'CSRF-Token': csrfToken,
+                'Content-Type': 'application/json'                
             },
             body: JSON.stringify({ username, password }),
         });
@@ -114,7 +106,6 @@ button:hover {
             document.getElementById('message').textContent = data.message;
         }
     });
-
-    getCsrfToken();
+    
 </script>
 
