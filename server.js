@@ -8,6 +8,9 @@ const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const authenticateToken = require('./middleware');
 const crypto = require('crypto');
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const axios = require('axios');
 
 const { connectToDatabase, client } = require('./db');
 
@@ -29,6 +32,54 @@ const v1ExamRouter = require('./routes/v1/exam');
 app.use('/api/v1', v1IndexRouter);
 app.use('/api/v1', v1BackupRouter);
 app.use('/api/v1', v1ExamRouter);
+
+function verifyOrigin(req, res, next) {
+    const origin = req.headers.origin || req.headers.referer;
+    if (!origin || !origin.startsWith(process.env.ORIGIN_URL)) {
+        return res.status(403).json({ message: 'Não permitido' });
+    }
+    next();
+}
+const csrfProtection = csrf({ cookie: true });
+app.use(cookieParser());
+
+app.get('/csrf-token', csrfProtection, (req, res) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken(), { httpOnly: true, secure: true });
+    res.json({ csrfToken: req.csrfToken() });
+});
+
+app.post('/proxy-login', verifyOrigin, csrfProtection, async (req, res) => {
+    const { username, password } = req.body;
+    
+    const payload = `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+    const hmac = crypto.createHmac('sha256', hmacKey);
+    const digest = hmac.update(payload).digest('hex');
+
+    try {
+        const response = await axios.post(process.env.ORIGIN_URL + '/api/v1/login', payload, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'CertQuiz',
+                'x-api-key': apiKey,
+                'x-signature': digest,
+            },
+        });
+        
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.log(error);
+        if (error.response) {
+            // O servidor respondeu com um status fora do intervalo 2xx
+            res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // A requisição foi feita mas não houve resposta
+            res.status(500).json({ message: 'No response received from server' });
+        } else {
+            // Algo aconteceu ao configurar a requisição que acionou um erro
+            res.status(500).json({ message: 'Error in setting up the request' });
+        }
+    }
+});
 
 
 app.post('/api/v1/register', async (req, res) => {

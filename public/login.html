@@ -73,37 +73,48 @@ button:hover {
             <input type="text" id="username" name="username" required>
             <label for="password">Senha:</label>
             <input type="password" id="password" name="password" required>
+            <input type="hidden" id="csrfToken" name="_csrf">
             <button type="submit">Login</button>
         </form>
         <div id="message"></div>
     </div>
 </body>
 </html>
-
 <script>
-    document.getElementById('login-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    async function getCsrfToken() {
+        const response = await fetch('/csrf-token');
+        const data = await response.json();
+        document.getElementById('csrfToken').value = data.csrfToken;
+    }
 
-    const response = await fetch('/api/v1/login', {
-        method: 'POST',
-        headers: {
-           'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: 'username='+username+'&password='+password
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const csrfToken = document.getElementById('csrfToken').value;
+
+        const response = await fetch('/proxy-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken,
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {            
+            localStorage.setItem('authToken', data.token); 
+            document.getElementById('message').textContent = `Login bem-sucedido. Redirecionando...`;
+            setTimeout(() => {
+                window.location.href = 'index.html'; 
+            }, 2000); 
+        } else {
+            document.getElementById('message').textContent = data.message;
+        }
     });
 
-    const data = await response.json();
-    if (response.ok) {
-        localStorage.setItem('authToken', data.token); 
-        document.getElementById('message').textContent = `Login bem-sucedido. Redirecionando...`;
-        setTimeout(() => {
-            window.location.href = 'index.html'; 
-        }, 2000); 
-    } else {
-        document.getElementById('message').textContent = data.message;
-    }
-});
-
+    getCsrfToken();
 </script>
+
