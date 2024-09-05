@@ -110,9 +110,8 @@ app.post('/api/v1/register', async (req, res) => {
 function verifySignature(req, res, next) {
     const signature = req.headers['x-signature'];
     const apiKeyHeader = req.headers['x-api-key'];
-    const userAgent = req.headers['user-agent'];
-
-    if (apiKeyHeader !== apiKey || userAgent !== 'CertQuiz') {
+    
+    if (apiKeyHeader !== apiKey) {
         return res.status(403).json({ message: 'Acesso negado' });
     }
 
