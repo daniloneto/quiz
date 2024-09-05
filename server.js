@@ -37,6 +37,7 @@ app.post('/api/v1/register', async (req, res) => {
 });
 
 app.post('/api/v1/login', express.urlencoded({ extended: true }), async (req, res) => {
+    console.log('User-Agent:', req.headers['user-agent']);
     const { username, password } = req.body;
     const user = await app.locals.database.collection('users').findOne({ username });
     if (!user) {
