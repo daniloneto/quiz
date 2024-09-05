@@ -38,9 +38,6 @@ app.post('/api/v1/register', async (req, res) => {
     res.status(201).json({ message: 'Usuário registrado com sucesso' });
 });
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 function verifySignature(req, res, next) {
     const signature = req.headers['x-signature'];
     const apiKeyHeader = req.headers['x-api-key'];
@@ -61,7 +58,7 @@ function verifySignature(req, res, next) {
     next();
 }
 
-app.post('/api/v1/login', verifySignature, async (req, res) => {
+app.post('/api/v1/login',express.urlencoded({ extended: true }), verifySignature, async (req, res) => {
     const { username, password } = req.body;
     const user = await app.locals.database.collection('users').findOne({ username });
     if (!user) {
@@ -74,10 +71,6 @@ app.post('/api/v1/login', verifySignature, async (req, res) => {
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     const expirationDate = new Date(Date.now() + 3600000); // 1 hora a partir de agora
     res.status(201).json({ token, expiresAt: expirationDate });
-});
-
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
 });
 
 // Rota protegida
