@@ -191,6 +191,10 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
     res.status(201).json({ token, expiresAt: expirationDate });
 });
 
+// Rota protegida
+app.get('/protected', authenticateToken, (req, res) => {
+    res.json({ message: 'Esta é uma rota protegida' });
+});
 
 connectToDatabase().then(database => {
     app.locals.database = database;
