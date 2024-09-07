@@ -176,10 +176,10 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta.' });
     }
 
-    const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
-    if (!profile.ativado) {
-        return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
-    }
+    // const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
+    // if (!profile.ativado) {
+    //     return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
+    // }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
