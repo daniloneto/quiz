@@ -24,6 +24,7 @@ const apiKey = process.env.API_KEY;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', 1);
 
 const loginLimiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutos
@@ -76,7 +77,6 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
         const response = await axios.post(process.env.ORIGIN_URL + '/api/v1/login', payload, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'CertQuiz',
                 'x-api-key': apiKey,
                 'x-signature': digest,
             },
@@ -99,13 +99,48 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
 });
 
 
+
+app.get('/api/v1/confirm-email', async (req, res) => {
+    const { token } = req.query;
+
+    try {
+        const decoded = jwt.verify(token, secretKey);
+        const userId = decoded.userId;
+
+        await app.locals.database.collection('profile').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { ativado: true } }
+        );
+
+        res.status(200).json({ message: 'E-mail confirmado com sucesso!' });
+    } catch (error) {
+        res.status(400).json({ message: 'Token inválido ou expirado' });
+    }
+});
+
+
 app.post('/api/v1/register', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, nome, email } = req.body;
+    const pontos = 0;
+    const nivel = 1;
+    const ativado = false;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = { username, password: hashedPassword };
-    await app.locals.database.collection('users').insertOne(user);
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
+    const userResult = await app.locals.database.collection('users').insertOne(user);
+    const profile = {
+        _id: userResult.insertedId,
+        nome,
+        email,
+        pontos,
+        nivel,
+        data_criacao: new Date(),
+        ultimo_login: new Date(),
+        ativado
+    };
+    await app.locals.database.collection('profile').insertOne(profile);
+
 });
+
 
 function verifySignature(req, res, next) {
     const signature = req.headers['x-signature'];
@@ -126,11 +161,10 @@ function verifySignature(req, res, next) {
     next();
 }
 
-app.post('/api/v1/login',loginLimiter, speedLimiter,express.urlencoded({ extended: true }), verifySignature, async (req, res) => {
+app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ extended: true }), verifySignature, async (req, res) => {
     const { username, password } = req.body;
-    
-    // Validação e sanitização
-      if (!validator.isAlphanumeric(username) || !validator.isLength(username, { min: 3, max: 30 })) {
+
+    if (!validator.isAlphanumeric(username) || !validator.isLength(username, { min: 3, max: 30 })) {
         return res.status(401).json({ message: 'Invalid username' });
     }
     if (!validator.isLength(password, { min: 6 })) {
@@ -141,19 +175,22 @@ app.post('/api/v1/login',loginLimiter, speedLimiter,express.urlencoded({ extende
     if (!user) {
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta.' });
     }
+
+    const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
+    if (!profile.ativado) {
+        return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta' });
     }
+
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     const expirationDate = new Date(Date.now() + 3600000); // 1 hora a partir de agora
     res.status(201).json({ token, expiresAt: expirationDate });
 });
 
-// Rota protegida
-app.get('/protected', authenticateToken, (req, res) => {
-    res.json({ message: 'Esta é uma rota protegida' });
-});
 
 connectToDatabase().then(database => {
     app.locals.database = database;
