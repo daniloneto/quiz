@@ -15,10 +15,7 @@ const validator = require('validator');
 const fs = require('fs');
 const { MailerSend, EmailParams, Recipient,Sender } = require('mailersend');
 
-const getHtmlContent = (fileName) => {
-    const filePath = path.join(__dirname, fileName);
-    return fs.readFileSync(filePath, 'utf8');
-};
+
 
 const { connectToDatabase, client } = require('./db');
 
@@ -106,6 +103,10 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
 });
 
 
+const getHtmlContent = (fileName) => {
+    const filePath = path.join(__dirname, fileName);
+    return fs.readFileSync(filePath, 'utf8');
+};
 
 app.get('/confirm-email', async (req, res) => {
     const { token } = req.query;
