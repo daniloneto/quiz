@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ObjectId } = require('mongodb');
+const { ObjectId } = require('mongodb');
 require('dotenv').config();
 const authenticateToken = require('./middleware');
 const crypto = require('crypto');
@@ -12,12 +12,11 @@ const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 const validator = require('validator');
-const fs = require('fs');
-const { MailerSend, EmailParams, Recipient,Sender } = require('mailersend');
+const { MailerSend, EmailParams, Recipient, Sender } = require('mailersend');
+const helmet = require('helmet');
 
-
-const {cadastro_ativado, erro_ativacao} = require('./htmls');
-const { connectToDatabase, client } = require('./db');
+const { cadastro_ativado, erro_ativacao } = require('./htmls');
+const { connectToDatabase } = require('./db');
 
 const app = express();
 const port = process.env.PORT;
@@ -25,6 +24,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 const hmacKey = process.env.HMAC_SECRET_KEY;
 const apiKey = process.env.API_KEY;
 
+app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,7 +35,7 @@ const loginLimiter = rateLimit({
     max: 10, // Limite de 10 requisições por IP
     handler: (req, res) => {
         res.status(429).json({
-          message: 'Você excedeu o limite de requisições. Tente novamente mais tarde.'
+            message: 'Você excedeu o limite de requisições. Tente novamente mais tarde.'
         });
     }
 });
@@ -62,7 +62,7 @@ function verifyOrigin(req, res, next) {
     next();
 }
 
-app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, res) => {
+app.post('/proxy-login', loginLimiter, speedLimiter, verifyOrigin, async (req, res) => {
     const { username, password } = req.body;
 
     // Validação e sanitização
@@ -85,7 +85,7 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
                 'x-signature': digest,
             },
         });
-        
+
         res.status(response.status).json(response.data);
     } catch (error) {
         console.log(error);
@@ -103,7 +103,7 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
 });
 
 app.get('/confirm-email', async (req, res) => {
-    const { token } = req.query;  
+    const { token } = req.query;
 
     try {
         const decoded = jwt.verify(token, secretKey);
@@ -138,8 +138,7 @@ app.post('/api/v1/register', async (req, res) => {
     const nivel = 1;
     const ativado = false;
 
-    try {        
-
+    try {
         // Verifica se o nome de usuário já existe
         const existingUser = await app.locals.database.collection('users').findOne({ username });
         if (existingUser) {
@@ -154,9 +153,9 @@ app.post('/api/v1/register', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = { username, password: hashedPassword };
-        
+
         const userResult = await app.locals.database.collection('users').insertOne(user);
-        
+
         const profile = {
             _id: userResult.insertedId,
             nome,
@@ -167,7 +166,7 @@ app.post('/api/v1/register', async (req, res) => {
             ultimo_login: new Date(),
             ativado
         };
-        
+
         await app.locals.database.collection('profile').insertOne(profile);
 
         const token = jwt.sign({ userId: userResult.insertedId }, secretKey, { expiresIn: '1h' });
@@ -179,10 +178,10 @@ app.post('/api/v1/register', async (req, res) => {
         const recipients = [new Recipient(email, nome)];
 
         const emailParams = new EmailParams()
-            .setFrom(sentFrom)            
+            .setFrom(sentFrom)
             .setTo(recipients)
             .setSubject("CertQuiz - Verificação de e-mail")
-            .setHtml("Ative sua conta CertQuiz agora: <a href=\"" + process.env.ORIGIN_URL + "/confirm-email?token=" + token + "\">" + process.env.ORIGIN_URL + "/confirm-email?token=" + token + "</a>");        
+            .setHtml(`Ative sua conta CertQuiz agora: <a href="${process.env.ORIGIN_URL}/confirm-email?token=${token}">${process.env.ORIGIN_URL}/confirm-email?token=${token}</a>`);
 
         await mailersend.email.send(emailParams);
 
@@ -193,11 +192,10 @@ app.post('/api/v1/register', async (req, res) => {
     }
 });
 
-
 function verifySignature(req, res, next) {
     const signature = req.headers['x-signature'];
     const apiKeyHeader = req.headers['x-api-key'];
-    
+
     if (apiKeyHeader !== apiKey) {
         return res.status(403).json({ message: 'Acesso negado' });
     }
@@ -228,10 +226,10 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta.' });
     }
 
-     const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
-     if (!profile.ativado) {
-         return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
-     }
+    const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
+    if (!profile.ativado) {
+        return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -240,7 +238,7 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
 
     await app.locals.database.collection('profile').updateOne(
         { _id: new ObjectId(user._id) },
-        { $set: {  ultimo_login: new Date() } }
+        { $set: { ultimo_login: new Date() } }
     );
 
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
