@@ -12,6 +12,13 @@ const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 const validator = require('validator');
+const fs = require('fs');
+const { MailerSend, EmailParams, Recipient,Sender } = require('mailersend');
+
+const getHtmlContent = (fileName) => {
+    const filePath = path.join(__dirname, fileName);
+    return fs.readFileSync(filePath, 'utf8');
+};
 
 const { connectToDatabase, client } = require('./db');
 
@@ -100,45 +107,97 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
 
 
 
-app.get('/api/v1/confirm-email', async (req, res) => {
+app.get('/confirm-email', async (req, res) => {
     const { token } = req.query;
+    const successHtml = getHtmlContent('cadastro_ativado.html');
+    const errorHtml = getHtmlContent('erro_ativacao.html');
 
     try {
         const decoded = jwt.verify(token, secretKey);
         const userId = decoded.userId;
+
+        // Verifica se o perfil do usuário existe
+        const userProfile = await app.locals.database.collection('profile').findOne({ _id: new ObjectId(userId) });
+        if (!userProfile) {
+            return res.status(400).send(errorHtml);
+        }
+
+        // Verifica se o usuário já está ativado
+        if (userProfile.ativado) {
+            return res.status(400).send(errorHtml);
+        }
 
         await app.locals.database.collection('profile').updateOne(
             { _id: new ObjectId(userId) },
             { $set: { ativado: true } }
         );
 
-        res.status(200).json({ message: 'E-mail confirmado com sucesso!' });
+        res.status(200).send(successHtml);
     } catch (error) {
-        res.status(400).json({ message: 'Token inválido ou expirado' });
+        console.error('Erro ao confirmar e-mail:', error);
+        res.status(400).send(errorHtml);
     }
 });
-
 
 app.post('/api/v1/register', async (req, res) => {
     const { username, password, nome, email } = req.body;
     const pontos = 0;
     const nivel = 1;
     const ativado = false;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = { username, password: hashedPassword };
-    const userResult = await app.locals.database.collection('users').insertOne(user);
-    const profile = {
-        _id: userResult.insertedId,
-        nome,
-        email,
-        pontos,
-        nivel,
-        data_criacao: new Date(),
-        ultimo_login: new Date(),
-        ativado
-    };
-    await app.locals.database.collection('profile').insertOne(profile);
 
+    try {        
+
+        // Verifica se o nome de usuário já existe
+        const existingUser = await app.locals.database.collection('users').findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Nome de usuário já em uso.' });
+        }
+
+        // Verifica se o e-mail já existe
+        const existingEmail = await app.locals.database.collection('profile').findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'E-mail em uso.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = { username, password: hashedPassword };
+        
+        const userResult = await app.locals.database.collection('users').insertOne(user);
+        
+        const profile = {
+            _id: userResult.insertedId,
+            nome,
+            email,
+            pontos,
+            nivel,
+            data_criacao: new Date(),
+            ultimo_login: new Date(),
+            ativado
+        };
+        
+        await app.locals.database.collection('profile').insertOne(profile);
+
+        const token = jwt.sign({ userId: userResult.insertedId }, secretKey, { expiresIn: '1h' });
+
+        const mailersend = new MailerSend({
+            apiKey: process.env.MAILSEND_KEY,
+        });
+        const sentFrom = new Sender("MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net", "CertQuiz");
+        const recipients = [new Recipient(email, nome)];
+
+        const emailParams = new EmailParams()
+            .setFrom(sentFrom)            
+            .setTo(recipients)
+            .setSubject("CertQuiz - Verificação de e-mail")
+            .setHtml("Ative sua conta CertQuiz agora: <a href=\"" + process.env.ORIGIN_URL + "/confirm-email?token=" + token + "\">" + process.env.ORIGIN_URL + "/confirm-email?token=" + token + "</a>");        
+
+        await mailersend.email.send(emailParams);
+
+        res.status(200).json({ message: 'Registrado com sucesso. Enviamos um e-mail para ativação da conta' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
 
@@ -176,15 +235,20 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta.' });
     }
 
-    // const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
-    // if (!profile.ativado) {
-    //     return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
-    // }
+     const profile = await app.locals.database.collection('profile').findOne({ _id: user._id });
+     if (!profile.ativado) {
+         return res.status(401).json({ message: 'Conta não foi ativada ainda, verifique seu e-mail.' });
+     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
         return res.status(401).json({ message: 'Usuário e/ou senha incorreta' });
     }
+
+    await app.locals.database.collection('profile').updateOne(
+        { _id: new ObjectId(user._id) },
+        { $set: {  ultimo_login: new Date() } }
+    );
 
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     const expirationDate = new Date(Date.now() + 3600000); // 1 hora a partir de agora

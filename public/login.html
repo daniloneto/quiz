@@ -100,7 +100,7 @@ button:hover {
             localStorage.setItem('authToken', data.token); 
             document.getElementById('message').textContent = `Login bem-sucedido. Redirecionando...`;
             setTimeout(() => {
-                window.location.href = 'index.html'; 
+                window.location.href = 'oxe.html'; 
             }, 2000); 
         } else {
             document.getElementById('message').textContent = data.message;
