@@ -251,6 +251,10 @@ app.get('/protected', authenticateToken, (req, res) => {
     res.json({ message: 'Esta é uma rota protegida' });
 });
 
+app.get('/api/v1/protected', authenticateToken, (req, res) => {
+    res.json({ message: 'Esta é uma rota protegida' });
+});
+
 connectToDatabase().then(database => {
     app.locals.database = database;
     app.listen(port, () => {
