@@ -16,7 +16,7 @@ const fs = require('fs');
 const { MailerSend, EmailParams, Recipient,Sender } = require('mailersend');
 
 
-
+const {cadastro_ativado, erro_ativacao} = require('./htmls');
 const { connectToDatabase, client } = require('./db');
 
 const app = express();
@@ -102,16 +102,8 @@ app.post('/proxy-login',loginLimiter, speedLimiter, verifyOrigin, async (req, re
     }
 });
 
-
-const getHtmlContent = (fileName) => {
-    const filePath = path.join(__dirname, fileName);
-    return fs.readFileSync(filePath, 'utf8');
-};
-
 app.get('/confirm-email', async (req, res) => {
-    const { token } = req.query;
-    const successHtml = getHtmlContent('cadastro_ativado.html');
-    const errorHtml = getHtmlContent('erro_ativacao.html');
+    const { token } = req.query;  
 
     try {
         const decoded = jwt.verify(token, secretKey);
@@ -120,12 +112,12 @@ app.get('/confirm-email', async (req, res) => {
         // Verifica se o perfil do usuário existe
         const userProfile = await app.locals.database.collection('profile').findOne({ _id: new ObjectId(userId) });
         if (!userProfile) {
-            return res.status(400).send(errorHtml);
+            return res.status(400).send(erro_ativacao);
         }
 
         // Verifica se o usuário já está ativado
         if (userProfile.ativado) {
-            return res.status(400).send(errorHtml);
+            return res.status(400).send(erro_ativacao);
         }
 
         await app.locals.database.collection('profile').updateOne(
@@ -133,10 +125,10 @@ app.get('/confirm-email', async (req, res) => {
             { $set: { ativado: true } }
         );
 
-        res.status(200).send(successHtml);
+        res.status(200).send(cadastro_ativado);
     } catch (error) {
         console.error('Erro ao confirmar e-mail:', error);
-        res.status(400).send(errorHtml);
+        res.status(400).send(erro_ativacao);
     }
 });
 
