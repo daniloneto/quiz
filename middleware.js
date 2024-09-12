@@ -13,5 +13,11 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
-
-module.exports = authenticateToken;
+function verifyApiKey(req,res,next){
+    const apiKeyHeader = req.headers['x-api-key'];
+    if (apiKeyHeader !== apiKey) {
+        return res.status(403).json({ message: 'Acesso negado' });
+    }
+    next();
+}
+module.exports = {authenticateToken, verifyApiKey};

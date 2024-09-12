@@ -29,25 +29,39 @@ router.post('/save-quiz-result', authenticateToken, async (req, res) => {
         const { userId, examId, quizIndex, correctAnswers, totalQuestions } = req.body;
     
         if (!userId || !examId || quizIndex === undefined || correctAnswers === undefined || !totalQuestions) {
-        return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+            return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
         }
     
-        const quizResult = {
-        userId: new ObjectId(userId),
-        examId: new ObjectId(examId),
-        quizIndex,
-        correctAnswers,
-        totalQuestions,
-        date: new Date()
+        const filter = {
+            userId: new ObjectId(userId),
+            examId: new ObjectId(examId),
+            quizIndex
         };
     
-        
-        const result = await req.app.locals.database.collection('quizResults').insertOne(quizResult);
-        res.status(201).json({ message: 'Resultado do quiz salvo com sucesso.', resultId: result.insertedId });
+        const update = {
+            $push: {
+                answers: {
+                    correctAnswers,
+                    totalQuestions,
+                    date: new Date()
+                }
+            }
+        };
+    
+        const options = { upsert: true };
+    
+        const result = await req.app.locals.database.collection('quizResults').updateOne(filter, update, options);
+    
+        if (result.upsertedCount > 0) {
+            res.status(201).json({ message: 'Resultado do quiz salvo com sucesso.', resultId: result.upsertedId._id });
+        } else {
+            res.status(200).json({ message: 'Resultado do quiz atualizado com sucesso.' });
+        }
     } catch (error) {
-      console.error('Erro ao salvar resultado do quiz:', error);
-      res.status(500).json({ message: 'Erro interno do servidor.' });
+        console.error('Erro ao salvar resultado do quiz:', error);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-  });
+});
+
 
 module.exports = router;
