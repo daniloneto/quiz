@@ -2,18 +2,8 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const authenticateToken = require('../../middleware');
-/**
- * @swagger
- * /api/v1/backup:
- *   get:
- *     summary: Backup dos dados para um arquivo json local
- *     responses:
- *       200:
- *         description: Sucesso
- *       500:
- *         description: Erro ao fazer backup
- */
+const {authenticateToken} = require('../../middleware');
+
 router.get('/backup', authenticateToken, async (req, res) => {
     try {
         const collection = req.app.locals.database.collection('exams');

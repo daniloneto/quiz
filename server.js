@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
 require('dotenv').config();
-const authenticateToken = require('./middleware');
+const {authenticateToken,verifyApiKey} = require('./middleware');
 const crypto = require('crypto');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
@@ -54,7 +54,7 @@ const v1QuizRouter = require('./routes/v1/quiz');
 app.use('/api/v1', v1IndexRouter);
 app.use('/api/v1', v1BackupRouter);
 app.use('/api/v1', v1ExamRouter);
-app.use('/api/v1/',v1QuizRouter);
+app.use('/api/v1',v1QuizRouter);
 
 function verifyOrigin(req, res, next) {
     const origin = req.headers.origin || req.headers.referer;

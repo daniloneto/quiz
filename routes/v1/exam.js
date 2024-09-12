@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
-const authenticateToken = require('../../middleware');
+const {authenticateToken} = require('../../middleware');
 
 router.get('/exam/:title/quiz/:index',authenticateToken, async (req, res) => {
     try {

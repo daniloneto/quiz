@@ -9,9 +9,9 @@ function authenticateToken(req, res, next) {
 
     jwt.verify(token, secretKey, (err, user) => {
         if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
+        req.user = user;        
     });
+    next();
 }
 function verifyApiKey(req,res,next){
     const apiKeyHeader = req.headers['x-api-key'];
