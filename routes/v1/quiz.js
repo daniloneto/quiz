@@ -62,6 +62,25 @@ router.post('/save-quiz-result', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 });
+router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
+    try {
+        const { userId } = req.params;
 
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'ID de usuário inválido.' });
+        }
+
+        const results = await req.app.locals.database.collection('quizResults').find({ userId: new ObjectId(userId) }).toArray();
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Nenhum resultado encontrado para este usuário.' });
+        }
+
+        res.status(200).json(results);
+    } catch (error) {
+        console.error('Erro ao obter resultados dos quizzes:', error);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+});
 
 module.exports = router;
