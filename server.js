@@ -49,10 +49,12 @@ const speedLimiter = slowDown({
 const v1IndexRouter = require('./routes/v1/index');
 const v1BackupRouter = require('./routes/v1/backup');
 const v1ExamRouter = require('./routes/v1/exam');
+const v1QuizRouter = require('./routes/v1/quiz');
 
 app.use('/api/v1', v1IndexRouter);
 app.use('/api/v1', v1BackupRouter);
 app.use('/api/v1', v1ExamRouter);
+app.use('/api/v1/',v1QuizRouter);
 
 function verifyOrigin(req, res, next) {
     const origin = req.headers.origin || req.headers.referer;
@@ -246,6 +248,7 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
     res.status(201).json({ token, expiresAt: expirationDate });
 });
 
+  
 // Rota protegida
 app.get('/protected', authenticateToken, (req, res) => {
     res.json({ message: 'Esta é uma rota protegida' });

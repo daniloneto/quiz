@@ -62,26 +62,6 @@ router.post('/question', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/quiz',authenticateToken,  async (req, res) => {
-    try {
-        const { examTitle, quiz } = req.body;
-        const collection = req.app.locals.database.collection('exams');
-
-        const exam = await collection.findOne({ "title": examTitle });
-        if (exam) {
-            await collection.updateOne(
-                { "title": examTitle },
-                { $push: { quizzes: quiz } }
-            );
-            res.status(200).send('Quiz cadastrado com sucesso');
-        } else {
-            res.status(404).send('Exame não encontrado');
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Erro ao cadastrar o quiz');
-    }
-});
 
 router.post('/exams',authenticateToken, async (req, res) => {
     try {
