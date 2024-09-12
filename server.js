@@ -245,7 +245,7 @@ app.post('/api/v1/login', loginLimiter, speedLimiter, express.urlencoded({ exten
 
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     const expirationDate = new Date(Date.now() + 3600000); // 1 hora a partir de agora
-    res.status(201).json({ token, expiresAt: expirationDate });
+    res.status(201).json({ token, expiresAt: expirationDate, uid: user._id });
 });
 
   
