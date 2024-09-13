@@ -79,7 +79,7 @@ router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
 
         const collection = req.app.locals.database.collection('exams');
         await Promise.all(results.map(async (result) => {
-            const exam = await collection.findOne({ "_id": result._id });
+            const exam = await collection.findOne({ "_id": result.examId });
             result.exam = exam;
         }));
 
