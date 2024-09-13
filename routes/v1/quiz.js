@@ -27,31 +27,33 @@ router.post('/quiz',authenticateToken,  async (req, res) => {
 router.post('/save-quiz-result', authenticateToken, async (req, res) => {
     try {
         const { userId, examId, quizIndex, correctAnswers, totalQuestions } = req.body;
-    
+
         if (!userId || !examId || quizIndex === undefined || correctAnswers === undefined || !totalQuestions) {
             return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
         }
-    
+
         const filter = {
             userId: new ObjectId(userId),
-            examId: new ObjectId(examId),
-            quizIndex
+            examId: new ObjectId(examId)
         };
-    
+
         const update = {
+            $set: {
+                [`quizzes.${quizIndex}.quizIndex`]: quizIndex
+            },
             $push: {
-                answers: {
+                [`quizzes.${quizIndex}.answers`]: {
                     correctAnswers,
                     totalQuestions,
                     date: new Date()
                 }
             }
         };
-    
+
         const options = { upsert: true };
-    
+
         const result = await req.app.locals.database.collection('quizResults').updateOne(filter, update, options);
-    
+
         if (result.upsertedCount > 0) {
             res.status(201).json({ message: 'Resultado do quiz salvo com sucesso.', resultId: result.upsertedId._id });
         } else {
@@ -63,7 +65,8 @@ router.post('/save-quiz-result', authenticateToken, async (req, res) => {
     }
 });
 
-router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
+
+router.get('/quiz-results/:userId',authenticateToken, async (req, res) => {
     try {
         const { userId } = req.params;
 
@@ -79,8 +82,8 @@ router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
 
         const collection = req.app.locals.database.collection('exams');
         await Promise.all(results.map(async (result) => {
-            const exam = await collection.findOne({ "_id": result.examId });
-            result.exam = exam;
+            const exam = await collection.findOne({ "_id": result.examId });            
+            result.examTitle = exam.title;
         }));
 
         res.status(200).json(results);
