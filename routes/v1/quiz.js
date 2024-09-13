@@ -62,6 +62,7 @@ router.post('/save-quiz-result', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 });
+
 router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
     try {
         const { userId } = req.params;
@@ -76,11 +77,18 @@ router.get('/quiz-results/:userId', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Nenhum resultado encontrado para este usuário.' });
         }
 
+        const collection = req.app.locals.database.collection('exams');
+        await Promise.all(results.map(async (result) => {
+            const exam = await collection.findOne({ "_id": result._id });
+            result.exam = exam;
+        }));
+
         res.status(200).json(results);
     } catch (error) {
         console.error('Erro ao obter resultados dos quizzes:', error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 });
+
 
 module.exports = router;
