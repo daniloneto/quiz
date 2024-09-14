@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir Senha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            text-align: left;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 20px;
+            color: #d9534f;
+        }
+
+        #success {
+            color: #28a745;
+        }
+
+    </style>    
+</head>
+<body>    
+    <div id="content">
+        <h1>Redefinir Senha</h1>
+        <form id="reset-password-form">
+            <label for="new-password">Nova senha:</label>
+            <input type="password" id="new-password" name="new-password" required>
+            
+            <label for="confirm-password">Confirme a senha:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+            
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="message"></div>
+        <div id="success"></div>
+    </div>
+</body>
+</html>
+
+<script>
+    document.getElementById('reset-password-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const token = new URLSearchParams(window.location.search).get('token');
+
+        // Validação se as senhas são iguais
+        if (newPassword !== confirmPassword) {
+            document.getElementById('message').textContent = 'As senhas não correspondem.';
+            return;
+        }
+
+        // Requisição para o endpoint de redefinir senha
+        const response = await fetch('/reset-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: token, 
+                newPassword: newPassword
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('success').textContent = 'Senha redefinida com sucesso.';
+            document.getElementById('message').textContent = '';
+        } else {
+            document.getElementById('message').textContent = data.message;
+        }
+    });
+</script>

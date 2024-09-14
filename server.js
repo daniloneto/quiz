@@ -311,6 +311,147 @@ app.get("/api/v1/protected", authenticateToken, (req, res) => {
   res.json({ message: "Esta é uma rota protegida" });
 });
 
+const forgotLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 3, // Limite de 3 requisições por IP
+  handler: (req, res) => {
+    res.status(429).json({
+      message:
+        "Você excedeu o limite de requisições. Tente novamente mais tarde.",
+    });
+  },
+});
+// Rota para solicitar redefinição de senha
+app.post("/forgot-password", forgotLimiter, async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Sanitização do e-mail
+    const sanitizedEmail = validator.normalizeEmail(email);
+
+    if (!validator.isEmail(sanitizedEmail)) {
+      return res.status(400).json({ message: "E-mail inválido." });
+    }
+
+    // Verifica se o e-mail existe
+    const userProfile = await app.locals.database
+      .collection("profile")
+      .findOne({ email: sanitizedEmail });
+    if (!userProfile) {
+      return res.status(400).json({ message: "E-mail não encontrado." });
+    }
+
+    // Controle de múltiplas solicitações de redefinição de senha
+    const now = new Date();
+    const resetCooldown = 5 * 60 * 1000; // 5 minutos de cooldown
+
+    if (
+      userProfile.lastPasswordResetRequest &&
+      now - userProfile.lastPasswordResetRequest < resetCooldown
+    ) {
+      return res.status(429).json({
+        message: `Você já solicitou redefinição de senha. Tente novamente após ${Math.ceil(
+          (resetCooldown - (now - userProfile.lastPasswordResetRequest)) / 60000
+        )} minutos.`,
+      });
+    }
+
+    // Atualiza o campo de última solicitação de redefinição
+    await app.locals.database
+      .collection("profile")
+      .updateOne(
+        { _id: userProfile._id },
+        { $set: { lastPasswordResetRequest: now } }
+      );
+
+    // Gera um token JWT temporário
+    const token = jwt.sign({ userId: userProfile._id }, secretKey, {
+      expiresIn: "1h", // Token expira em 1 hora
+    });
+
+    // Armazena o token no MongoDB com `used: false`
+    await app.locals.database.collection("passwordResetTokens").insertOne({
+      userId: userProfile._id,
+      token: token,
+      used: false,
+      createdAt: new Date(),
+    });
+
+    // Envia o e-mail com o link para redefinição de senha
+    const mailersend = new MailerSend({
+      apiKey: process.env.MAILSEND_KEY,
+    });
+    const sentFrom = new Sender(
+      "MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net",
+      "CertQuiz"
+    );
+    const recipients = [new Recipient(sanitizedEmail, userProfile.nome)];
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject("CertQuiz - Redefinição de senha")
+      .setHtml(
+        `Clique no link para redefinir sua senha: <a href="${process.env.ORIGIN_URL}/reset-password?token=${token}">Redefinir Senha</a>`
+      );
+
+    await mailersend.email.send(emailParams);
+
+    res
+      .status(200)
+      .json({ message: "E-mail de redefinição de senha enviado." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao processar a solicitação." });
+  }
+});
+
+// Rota para redefinir a senha
+app.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Verifica o token no MongoDB
+    const tokenRecord = await app.locals.database
+      .collection("passwordResetTokens")
+      .findOne({ token });
+
+    // Verifica se o token é válido e não foi usado
+    if (!tokenRecord || tokenRecord.used) {
+      return res.status(400).json({ message: "Token inválido ou já utilizado." });
+    }
+
+    // Verifica se o token expirou
+    const decoded = jwt.verify(token, secretKey); // Valida o JWT
+
+    const userId = decoded.userId;
+
+    // Verifica se o usuário existe
+    const userProfile = await app.locals.database
+      .collection("profile")
+      .findOne({ _id: new ObjectId(userId) });
+    if (!userProfile) {
+      return res.status(400).json({ message: "Usuário não encontrado." });
+    }
+
+    // Atualiza a senha do usuário
+    const hashedPassword = await argon2.hash(newPassword);
+    await app.locals.database
+      .collection("users")
+      .updateOne({ _id: new ObjectId(userId) }, { $set: { password: hashedPassword } });
+
+    // Marca o token como "usado" no MongoDB
+    await app.locals.database
+      .collection("passwordResetTokens")
+      .updateOne({ token }, { $set: { used: true } });
+
+    res.status(200).json({ message: "Senha redefinida com sucesso." });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Token inválido ou expirado." });
+  }
+});
+
+
 connectToDatabase()
   .then((database) => {
     app.locals.database = database;
