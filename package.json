@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "mailersend": "^2.3.0",
     "mongodb": "^6.8.0",
+    "redis": "^4.7.0",
     "swagger-ui-express": "^5.0.1",
     "validator": "^13.12.0"
   },

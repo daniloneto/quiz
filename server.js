@@ -17,6 +17,20 @@ const helmet = require("helmet");
 
 const { cadastro_ativado, erro_ativacao } = require("./htmls");
 const { connectToDatabase } = require("./db");
+const redis = require('redis');
+// Configura o cliente Redis usando as variáveis de ambiente
+const redisClient = redis.createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+});
+
+// Lidar com erros de conexão
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+
+// Conectar ao Redis
+redisClient.connect().then(() => {
+  console.log('Conectado ao Redis.');
+});
+
 
 const app = express();
 const port = process.env.PORT;

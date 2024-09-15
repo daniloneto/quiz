@@ -16,5 +16,9 @@ COPY . .
 # Exponha a porta em que a aplicação será executada
 EXPOSE 3000
 
+COPY wait-for-redis.sh /usr/src/app/
+
+RUN chmod +x /usr/src/app/wait-for-redis.sh
+
 # Comando para iniciar a aplicação
 CMD ["npm", "run", "start"]
