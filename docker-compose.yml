@@ -7,21 +7,40 @@ services:
       - "3000:3000"
     depends_on:
       - redis
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      MAILSEND_KEY: mlsn.73e1fecdf0f98d4f3dbd749fe78832e36d92c96ecc92278abd6f2cfb8c5d6d68
-      ORIGIN_URL: https://localhost:3000
-      API_KEY: c547c7ec9c1f4ad499690cd9c26e05705026e3f848cc801bcaaf53e0e6382e960188a535ed7806bf762bdb856a6e62112d6b0d0afd14dafa50b8acccb066a7d9
-      HMAC_SECRET_KEY: c2c4f96e54161031e373fbd5b82cedd1b324f093eb8ce3781cf1ab17951b041a5587f2efb7a611e05d16e4f19b449c4372587bab05e9f59660dc750645b8f4a8
-      JWT_SECRET_KEY: f9153263f27dd012985f43388a8a785d48496f76b25a5abb3435b0d8d09a624b4f2f530736f1cf1841d57deca3164e13263711fcafdcf41167255abaf854a699
-      PORT: 3000
-      MONGODB_URI: mongodb+srv://vercel-admin-user:TEd3gP7IdHH9sRsd@cluster0.3auv4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+    env_file:
+      - .env
     volumes:
       - .:/app
       - /app/node_modules    
-      
+    networks:
+      - internal
+      - external
+
   redis:
     image: "redis:latest"
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - internal
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+  external:
+    driver: bridge
+
+volumes:
+  redis-data:
