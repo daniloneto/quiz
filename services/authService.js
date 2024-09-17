@@ -59,6 +59,7 @@ async function registerUser(database, { username, password, nome, email }) {
         data_criacao: new Date(),
         ultimo_login: new Date(),
         ativado: false,
+        adm: false
     };
 
     await database.collection('profile').insertOne(profile);
