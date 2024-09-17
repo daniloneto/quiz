@@ -4,7 +4,7 @@ if (!authToken) {
     window.location.href = 'login.html';    
 }
 else{
-const p = await fetch('/protected', {
+const p = await fetch('/api/v1/auth/protected', {
     method: 'GET',
     headers: {
         'Authorization': authToken

@@ -1,13 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-require('dotenv').config();
 
 const { connectToDatabase } = require('./config/database');
 //const { redisClient } = require('./config/redis');
-const routes = require('./routes/v1');
+const routes = require('./routes');
 
 const app = express();
 const port = process.env.PORT;
@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('trust proxy', 1);
 
-app.use('/api/v1', routes);
+app.use('/api', routes);
 
 connectToDatabase()
   .then((database) => {

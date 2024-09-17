@@ -9,7 +9,7 @@ async function sendActivationEmail(email, token) {
     .setFrom(sentFrom)
     .setTo(recipients)
     .setSubject('CertQuiz - Verificação de e-mail')
-    .setHtml(`Ative sua conta CertQuiz agora: <a href="${process.env.ORIGIN_URL}/confirm-email?token=${token}">${process.env.ORIGIN_URL}/confirm-email?token=${token}</a>`);
+    .setHtml(`Ative sua conta CertQuiz agora: <a href="${process.env.ORIGIN_URL}/api/v1/auth/confirm-email?token=${token}">${process.env.ORIGIN_URL}/confirm-email?token=${token}</a>`);
 
   await mailersend.email.send(emailParams);
 }
@@ -23,7 +23,7 @@ async function sendResetPasswordEmail(email, token) {
     .setFrom(sentFrom)
     .setTo(recipients)
     .setSubject('CertQuiz - Redefinição de senha')
-    .setHtml(`Clique no link para redefinir sua senha: <a href="${process.env.ORIGIN_URL}/reset-password?token=${token}">Redefinir Senha</a>`);
+    .setHtml(`Clique no link para redefinir sua senha: <a href="${process.env.ORIGIN_URL}/reset.html?token=${token}">Redefinir Senha</a>`);
 
   await mailersend.email.send(emailParams);
 }

@@ -102,7 +102,7 @@
             const examTitle = urlParams.get('exam');
             if (quizIndex !== null) {
                 try {                    
-                    const response = await fetch(`/api/v1/exam/${examTitle}/quiz/${quizIndex}`, {
+                    const response = await fetch(`/api/v1/exams/${examTitle}/quiz/${quizIndex}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': authToken
