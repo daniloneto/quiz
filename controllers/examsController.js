@@ -1,5 +1,4 @@
 const { ObjectId } = require('mongodb');
-const { redisClient } = require('../config/redis');
 
 async function getQuizByIndex(req, res) {
     try {
@@ -74,29 +73,11 @@ async function createExam(req, res) {
 
 async function getAllExams(req, res) {
     try {
-        const cacheKey = 'allExams';
-        
-        console.log('Verificando cache para a chave:', cacheKey);
-        
-        const cachedData = await redisClient.get(cacheKey);
-
-        if (cachedData) {
-            console.log('Dados encontrados no cache');
-            return res.status(200).json(JSON.parse(cachedData));
-        } else {
-            console.log('Dados não encontrados no cache, consultando o banco de dados');
-            const collection = req.app.locals.database.collection('exams');
-            const exams = await collection.find({}).toArray();
-
-            console.log('Dados obtidos do banco de dados, armazenando no cache');
-            await redisClient.set(cacheKey, JSON.stringify(exams), {
-                EX: 300 // Define a expiração para 5 minutos
-            });
-
-            return res.status(200).json(exams);
-        }
+        const collection = req.app.locals.database.collection('exams');
+        const exams = await collection.find({}).toArray();
+        res.status(200).json(exams);
     } catch (error) {
-        console.error('Erro ao obter as provas:', error);
+        console.error(error);
         res.status(500).send('Erro ao obter as provas');
     }
 }

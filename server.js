@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const { connectToDatabase } = require('./config/database');
-const { redisClient } = require('./config/redis');
+//const { redisClient } = require('./config/redis');
 const routes = require('./routes');
 
 const app = express();
@@ -31,6 +31,6 @@ connectToDatabase()
     console.error('Erro ao iniciar o servidor:', error);
   });
 
-redisClient.connect().then(() => {
-  console.log('Conectado ao Redis.');
-});
+// redisClient.connect().then(() => {
+//   console.log('Conectado ao Redis.');
+// });
