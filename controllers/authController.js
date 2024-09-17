@@ -3,30 +3,6 @@ const emailService = require("../services/emailService");
 const { validateUsername, validatePassword } = require("../utils/validators");
 const validator = require("validator");
 
-async function proxyLogin(req, res) {
-  const { username, password } = req.body;
-
-  if (username && password) {
-    if (!validateUsername(username) || !validatePassword(password)) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    try {
-      const response = await authService.proxyLogin(username, password);
-      res.status(response.status).json(response.data);
-    } catch (error) {
-      if (error instanceof authService.UserError) {
-        res.status(error.statusCode).json({ message: error.message });
-      } else {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
-      }
-    }
-  } else {
-    return res.status(401).json({ message: "Invalid username or password." });
-  }
-}
-
 async function register(req, res) {
   const { username, password, nome, email } = req.body;
 
@@ -152,8 +128,7 @@ async function protectedRoute(req, res) {
   res.json({ message: "Esta é uma rota protegida" });
 }
 
-module.exports = {
-  proxyLogin,
+module.exports = {  
   register,
   login,
   forgotPassword,

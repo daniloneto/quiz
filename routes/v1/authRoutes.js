@@ -6,7 +6,6 @@ const { authenticateToken,verifyApiKey } = require('../../middlewares/authMiddle
 
 const router = express.Router();
 
-router.post('/proxy-login', loginLimiter, speedLimiter, verifyOrigin, authController.proxyLogin);
 router.post('/register',verifyApiKey, authController.register);
 router.post('/login', loginLimiter, speedLimiter, verifyApiKey, express.urlencoded({ extended: true }), authController.login);
 router.post('/forgot-password',verifyApiKey, authController.forgotPassword);

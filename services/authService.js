@@ -1,37 +1,11 @@
 const { ObjectId } = require('mongodb');
 const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const axios = require('axios');
-const { generateHmac } = require('../utils/cryptoUtils');
 
 class UserError extends Error {
     constructor(message, statusCode) {
         super(message);
         this.statusCode = statusCode;
-    }
-}
-
-async function proxyLogin(username, password) {
-    const payload = `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    const hmac = generateHmac(payload, process.env.HMAC_SECRET_KEY);
-    const apiKey = process.env.API_KEY;
-
-    try {
-        const response = await axios.post(
-            process.env.ORIGIN_URL + '/api/v1/login',
-            payload,
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'x-api-key': apiKey,
-                    'x-signature': hmac,
-                },
-            }
-        );
-        return response;
-    } catch (error) {
-        throw new UserError('Erro ao fazer login via proxy', 500);
     }
 }
 
@@ -187,8 +161,7 @@ async function confirmEmail(database, token) {
     }
 }
 
-module.exports = {
-    proxyLogin,
+module.exports = {    
     registerUser,
     loginUser,
     forgotPassword,
