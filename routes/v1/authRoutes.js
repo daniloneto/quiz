@@ -12,5 +12,6 @@ router.post('/forgot-password',verifyApiKey, authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 router.get('/confirm-email', authController.confirmEmail);
 router.get('/protected', authenticateToken, authController.protectedRoute);
+router.get('/profile/:id', authController.getProfile);
 
 module.exports = router;

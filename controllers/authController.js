@@ -127,6 +127,25 @@ async function confirmEmail(req, res) {
 async function protectedRoute(req, res) {
   res.json({ message: "Esta é uma rota protegida" });
 }
+async function getProfile(req, res) {
+  const { id } = req.params;
+
+  try {
+    const profile = await req.app.locals.database.collection('profile').findOne(
+      { _id: new require('mongodb').ObjectID(id) },
+      { projection: { _id: 1, nome: 1, email: 1, pontos: 1, nivel: 1, data_criacao: 1 } }
+    );
+
+    if (!profile) {
+      return res.status(404).json({ message: "Perfil não encontrado" });
+    }
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+}
 
 module.exports = {  
   register,
@@ -135,4 +154,5 @@ module.exports = {
   resetPassword,
   confirmEmail,
   protectedRoute,
+  getProfile
 };
