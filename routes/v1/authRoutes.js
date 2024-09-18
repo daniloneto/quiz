@@ -11,7 +11,7 @@ router.post('/login', loginLimiter, speedLimiter, verifyApiKey, express.urlencod
 router.post('/forgot-password',verifyApiKey, authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 router.get('/confirm-email', authController.confirmEmail);
-router.get('/protected', authenticateToken, authController.protectedRoute);
-router.get('/profile/:id', authController.getProfile);
+router.get('/protected', authenticateToken,verifyApiKey, authController.protectedRoute);
+router.get('/profile/:id', authenticateToken, verifyApiKey, authController.getProfile);
 
 module.exports = router;
