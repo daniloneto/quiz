@@ -2,6 +2,8 @@ const authService = require("../services/authService");
 const emailService = require("../services/emailService");
 const { validateUsername, validatePassword } = require("../utils/validators");
 const validator = require("validator");
+const { ObjectId } = require('mongodb');
+
 
 async function register(req, res) {
   const { username, password, nome, email } = req.body;
@@ -132,7 +134,7 @@ async function getProfile(req, res) {
 
   try {
     const profile = await req.app.locals.database.collection('profile').findOne(
-      { _id: new require('mongodb').ObjectID(id) },
+      { _id: new ObjectId(id) },
       { projection: { _id: 1, nome: 1, email: 1, pontos: 1, nivel: 1, data_criacao: 1 } }
     );
 
