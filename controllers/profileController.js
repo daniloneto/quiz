@@ -26,14 +26,16 @@ async function buscarNiveis(database) {
   
   // Função para calcular o nível baseado nos pontos e níveis do banco de dados
   function calcularNivel(pontos, niveis) {
-    for (let i = niveis.length - 1; i >= 0; i--) {
-        if (pontos >= niveis[i].pontos) {
+
+    // Compara os pontos do jogador com os limites de cada nível
+    for (let i = 0; i < niveis.length; i++) {
+        if (pontos >= niveis[i].pontos && pontos <= niveis[i].limiteSuperior) {
             return niveis[i].nivel;
         }
     }
-    return 1;
-  }
-  
+    return 1; // Caso os pontos não se encaixem em nenhum nível
+}
+
   // Função para atualizar pontos e nível do usuário
   async function atualizarPontos(req, res) {
     const { userId, pontos } = req.body;
