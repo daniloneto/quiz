@@ -1,8 +1,9 @@
 const { ObjectId } = require('mongodb');
-async function getProfile(req, res) {
-    const { id } = req.params;
-  
-    try {
+
+  async function getProfile(req, res) {
+    try {      
+      const { id } = req.params;
+
       const profile = await req.app.locals.database.collection('profile').findOne(
         { _id: new ObjectId(id) },
         { projection: { _id: 1, nome: 1, email: 1, pontos: 1, nivel: 1, data_criacao: 1 } }
@@ -13,8 +14,7 @@ async function getProfile(req, res) {
       }
   
       res.status(200).json(profile);
-    } catch (error) {
-      console.error(error);
+    } catch (error) {      
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   }
