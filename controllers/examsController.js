@@ -74,13 +74,23 @@ async function createExam(req, res) {
 async function getAllExams(req, res) {
     try {
         const collection = req.app.locals.database.collection('exams');
-        const exams = await collection.find({}).toArray();
-        res.status(200).json(exams);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const exams = await collection.find({})
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+        
+        const total = await collection.countDocuments();
+        res.status(200).json({ exams, total, page, totalPages: Math.ceil(total / limit) });
     } catch (error) {
         console.error(error);
         res.status(500).send('Erro ao obter as provas');
     }
 }
+
 
 async function deleteExam(req, res) {
     try {

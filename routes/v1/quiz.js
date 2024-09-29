@@ -7,5 +7,5 @@ const router = express.Router();
 router.post('/', authenticateToken,verifyApiKey, quizController.createQuiz);
 router.post('/save-quiz-result', authenticateToken,verifyApiKey, quizController.saveQuizResult);
 router.get('/quiz-results/:userId', authenticateToken,verifyApiKey, quizController.getQuizResults);
-
+router.get('/exam/:id',authenticateToken,verifyApiKey,quizController.getQuizByExam);
 module.exports = router;

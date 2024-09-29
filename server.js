@@ -4,14 +4,12 @@ const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-
 const { connectToDatabase } = require('./config/database');
 //const { redisClient } = require('./config/redis');
 const routes = require('./routes');
 
 const app = express();
 const port = process.env.PORT;
-
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());

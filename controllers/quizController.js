@@ -69,6 +69,25 @@ async function saveQuizResult(req, res) {
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 }
+async function getQuizByExam(req, res) {
+    try {
+        const examId = req.params.id;
+        const collection = req.app.locals.database.collection('exams');
+        const query = { "_id": new ObjectId(examId) };
+
+        const exame = await collection.findOne(query);
+
+        if (exame) {
+            const quizzes = exame.quizzes || [];
+            res.status(200).json(quizzes);
+        } else {
+            res.status(404).send('Exame não encontrado');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao obter o quiz');
+    }
+}
 
 async function getQuizResults(req, res) {
     try {
@@ -101,4 +120,5 @@ module.exports = {
     createQuiz,
     saveQuizResult,
     getQuizResults,
+    getQuizByExam
 };

@@ -9,7 +9,7 @@ lista todos os containers up
 docker ps
 
 conecta no container
-docker exec -it 3c3f64d49e21 /bin/sh
+docker exec -it projeto-quiz_frontend_1 /bin/sh
 
 força o nodemon a restartar
 touch server.js 
