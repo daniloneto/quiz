@@ -5,9 +5,8 @@ const { authenticateToken,verifyApiKey } = require('../../middlewares/authMiddle
 const router = express.Router();
 
 router.get('/:title/quiz/:index', authenticateToken,verifyApiKey, examsController.getQuizByIndex);
-router.post('/question', authenticateToken,verifyApiKey, examsController.addQuestion);
-router.post('/question/update', authenticateToken,verifyApiKey, examsController.updateQuestion);
 router.post('/', authenticateToken,verifyApiKey, examsController.createExam);
 router.get('/', authenticateToken,verifyApiKey, examsController.getAllExams);
 router.delete('/:id', authenticateToken,verifyApiKey, examsController.deleteExam);
+
 module.exports = router;
