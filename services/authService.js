@@ -121,8 +121,8 @@ async function forgotPassword (database, email) {
 
 async function resetPassword (database, { token, newPassword }) {
   const tokenRecord = await database.collection('passwordResetTokens').findOne({ token });
-  if (!tokenRecord || tokenRecord.used) {
-    logger.error('Token inválido ou já utilizado:', token);
+  if (!tokenRecord || tokenRecord.used) {    
+    logger.error(`Token inválido ou já utilizado::${token}`);
     throw new UserError('Token inválido ou já utilizado.', 400);
   }
   
@@ -148,7 +148,7 @@ async function confirmEmail (database, token) {
     
     const userProfile = await database.collection('profile').findOne({ token: token });
     if (!userProfile) {
-      logger.error('Token não encontrado:', token);
+      logger.error(`Token não encontrado:${token}`);
       throw new UserError('Token não encontrado', 404);
     }
 
@@ -163,13 +163,9 @@ async function confirmEmail (database, token) {
     );
 
     return 'Conta ativada com sucesso.';
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      logger.error('Token inválido ou expirado:', token);
-      throw new UserError('Token inválido ou expirado.', 400);
-    }
+  } catch (error) {    
     logger.error('Erro ao confirmar e-mail:', error);
-    throw new UserError('Erro ao confirmar e-mail.', 500);
+    throw new UserError(error, 500);
   }
 }
 

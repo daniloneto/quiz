@@ -116,10 +116,10 @@ async function confirmEmail (req, res) {
       req.app.locals.database,
       token
     );
-    res.status(200).send(result);
+    res.status(200).json({ message: result });
   } catch (error) {
     if (error instanceof authService.UserError) {
-      res.status(error.statusCode).send(error.message);
+      res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error('Erro ao confirmar e-mail:', error);
       res.status(500).send('Erro ao confirmar e-mail');
