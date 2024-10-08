@@ -9,6 +9,14 @@ class UserError extends Error {
     this.statusCode = statusCode;
   }
 }
+function generateVerificationToken () {
+  const characters = 'BCDFGHJKLMNPQRSTVWXYZ0123456789';
+  let token = '';
+  for (let i = 0; i < 5; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
+}
 
 async function registerUser (database, { username, password, nome, email }) {
   const existingUser = await database.collection('users').findOne({ username });
@@ -26,6 +34,9 @@ async function registerUser (database, { username, password, nome, email }) {
   const user = { username, password: hashedPassword };
 
   const userResult = await database.collection('users').insertOne(user);
+  
+  const verificationToken = generateVerificationToken();
+
   const profile = {
     _id: userResult.insertedId,
     nome,
@@ -35,16 +46,13 @@ async function registerUser (database, { username, password, nome, email }) {
     data_criacao: new Date(),
     ultimo_login: new Date(),
     ativado: false,
-    adm: false
+    adm: false,
+    token: verificationToken
   };
 
   await database.collection('profile').insertOne(profile);
 
-  const token = jwt.sign({ userId: userResult.insertedId }, process.env.JWT_SECRET_KEY, {
-    expiresIn: '1h',
-  });
-
-  return { token };
+  return { verificationToken };
 }
 
 async function loginUser (database, { username, password }) {
@@ -94,24 +102,21 @@ async function forgotPassword (database, email) {
       (resetCooldown - (now - userProfile.lastPasswordResetRequest)) / 60000
     )} minutos.`, 429);
   }
+  const verificationToken = generateVerificationToken();
 
   await database.collection('profile').updateOne(
     { _id: userProfile._id },
     { $set: { lastPasswordResetRequest: now } }
   );
 
-  const token = jwt.sign({ userId: userProfile._id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: '1h',
-  });
-
   await database.collection('passwordResetTokens').insertOne({
     userId: userProfile._id,
-    token: token,
+    token: verificationToken,
     used: false,
     createdAt: new Date(),
   });
 
-  return { token };
+  return { verificationToken };
 }
 
 async function resetPassword (database, { token, newPassword }) {
@@ -120,19 +125,16 @@ async function resetPassword (database, { token, newPassword }) {
     logger.error('Token inválido ou já utilizado:', token);
     throw new UserError('Token inválido ou já utilizado.', 400);
   }
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  const userId = decoded.userId;
-
-  const userProfile = await database.collection('profile').findOne({ _id: new ObjectId(userId) });
+  
+  const userProfile = await database.collection('profile').findOne({ _id: new ObjectId(tokenRecord.userId) });
   if (!userProfile) {
-    logger.error('Usuário não encontrado:', userId);
+    logger.error('Usuário não encontrado:', tokenRecord.userId);
     throw new UserError('Usuário não encontrado.', 404);
   }
 
   const hashedPassword = await argon2.hash(newPassword);
   await database.collection('users').updateOne(
-    { _id: new ObjectId(userId) },
+    { _id: new ObjectId(tokenRecord.userId) },
     { $set: { password: hashedPassword } }
   );
 

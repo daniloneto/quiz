@@ -19,7 +19,7 @@ async function register (req, res) {
       nome,
       email,
     });
-    await emailService.sendActivationEmail(email, result.token);
+    await emailService.sendActivationEmail(email, result.verificationToken);
     res.status(200).json({
       message:
         'Registrado com sucesso. Enviamos um e-mail para ativação da conta',
