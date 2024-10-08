@@ -8,8 +8,7 @@ const logFormat = printf(({ level, message, timestamp, metadata }) => {
   return `${timestamp} ${level}: ${message} ${metaString}`;
 });
 
-const consoleFormat = combine(
-  colorize(),
+const consoleFormat = combine(  
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   logFormat
 );
