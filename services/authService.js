@@ -145,23 +145,21 @@ async function resetPassword (database, { token, newPassword }) {
 }
 async function confirmEmail (database, token) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const userId = decoded.userId;
-
-    const userProfile = await database.collection('profile').findOne({ _id: new ObjectId(userId) });
+    
+    const userProfile = await database.collection('profile').findOne({ token: token });
     if (!userProfile) {
-      logger.error('Perfil de usuário não encontrado:', userId);
-      throw new UserError('Perfil de usuário não encontrado.', 404);
+      logger.error('Token não encontrado:', token);
+      throw new UserError('Token não encontrado', 404);
     }
 
     if (userProfile.ativado) {
-      logger.error('Conta já ativada:', userId);
+      logger.error('Conta já ativada:', userProfile._id);
       throw new UserError('Conta já ativada.', 400);
     }
 
     await database.collection('profile').updateOne(
-      { _id: new ObjectId(userId) },
-      { $set: { ativado: true } }
+      { _id: new ObjectId(userProfile._id) },
+      { $set: { ativado: true, token: '' } }
     );
 
     return 'Conta ativada com sucesso.';
