@@ -22,7 +22,18 @@ app.use(morgan('custom', {
   }
 }));
 app.set('trust proxy', 1);
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+    const metadata = {            
+      ipAddress: req.ip || 'N/A',
+      userAgent: req.headers['user-agent'] || 'N/A',
+      endpoint: req.originalUrl || 'N/A'
+    };
 
+    logger.info('Requisição recebida:', { metadata });
+  }
+  next();  
+});
 app.use('/api', routes);
 
 connectToDatabase()

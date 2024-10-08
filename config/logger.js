@@ -1,37 +1,37 @@
 const { createLogger, format, transports } = require('winston');
 
-const { combine, timestamp, printf, colorize } = format;
+const { combine, timestamp, printf, colorize, metadata } = format;
 require('winston-mongodb');
 
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
+const logFormat = printf(({ level, message, timestamp, metadata }) => {
+  const metaString = metadata && Object.keys(metadata).length ? JSON.stringify(metadata) : '';
+  return `${timestamp} ${level}: ${message} ${metaString}`;
 });
+
+const consoleFormat = combine(
+  colorize(),
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  logFormat
+);
+
+const mongoFormat = combine(
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  metadata({ fillExcept: ['message', 'level', 'timestamp', 'label'] }),
+  logFormat
+);
 
 const logger = createLogger({
   level: 'info',
-  format: combine(
-    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    colorize(),
-    logFormat
-  ),
   transports: [
-    new transports.Console(),
-    new transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-      maxsize: 20 * 1024 * 1024,
-      maxFiles: 5 
-    }),
-    new transports.File({
-      filename: 'logs/combined.log',
-      maxsize: 20 * 1024 * 1024, 
-      maxFiles: 5 
+    new transports.Console({
+      format: consoleFormat
     }),
     new transports.MongoDB({
       level: 'info',
-      db: process.env.MONGODB_URI, 
+      db: process.env.MONGODB_URI,
       collection: 'log',
-      tryReconnect: true      
+      tryReconnect: true,
+      format: mongoFormat
     })
   ]
 });
