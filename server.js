@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const { connectToDatabase } = require('./config/database');
+const { connectToDatabase,initializeDatabase } = require('./config/database');
 //const { redisClient } = require('./config/redis');
 const routes = require('./routes');
 const logger = require('./config/logger');
@@ -38,7 +38,10 @@ app.use('/api', routes);
 
 connectToDatabase()
   .then((database) => {
-    app.locals.database = database;
+    app.locals.database = database;    
+    return initializeDatabase(database);
+  })
+  .then(() => {
     app.listen(port, () => {
       logger.info(`Servidor rodando em http://localhost:${port}`);
     });

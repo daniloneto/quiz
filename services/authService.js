@@ -31,7 +31,7 @@ async function registerUser (database, { username, password, nome, email }) {
   }
 
   const hashedPassword = await argon2.hash(password);
-  const user = { username, password: hashedPassword };
+  const user = { username, password: hashedPassword, ativado: false, createdAt: new Date() };
 
   const userResult = await database.collection('users').insertOne(user);
   
@@ -47,7 +47,8 @@ async function registerUser (database, { username, password, nome, email }) {
     ultimo_login: new Date(),
     ativado: false,
     adm: false,
-    token: verificationToken
+    token: verificationToken,
+    createdAt: new Date()
   };
 
   await database.collection('profile').insertOne(profile);
@@ -55,7 +56,7 @@ async function registerUser (database, { username, password, nome, email }) {
   return { verificationToken };
 }
 
-async function loginUser (database, { username, password }) {
+async function loginUser (database, { username, password, loginType }) {
   const user = await database.collection('users').findOne({ username });
   if (!user) {
     logger.error('Usuário não encontrado:', username);
@@ -66,6 +67,11 @@ async function loginUser (database, { username, password }) {
   if (!profile.ativado) {
     logger.error('Conta não ativada:', username);
     throw new UserError('Conta não foi ativada ainda, verifique seu e-mail.', 401);
+  }
+  
+  if(loginType === 'admin' && profile.adm === false) {
+    logger.error('Usuário não é administrador:', username);
+    throw new UserError('Você não tem permissão suficiente:', 401);
   }
 
   const isPasswordValid = await argon2.verify(user.password, password);
@@ -161,7 +167,11 @@ async function confirmEmail (database, token) {
       { _id: new ObjectId(userProfile._id) },
       { $set: { ativado: true, token: '' } }
     );
-
+    await database.collection('users').updateOne(
+      { _id: new ObjectId(userProfile._id) },
+      { $set: { ativado: true, token: '' } }
+    );
+    
     return 'Conta ativada com sucesso.';
   } catch (error) {    
     logger.error('Erro ao confirmar e-mail:', error);

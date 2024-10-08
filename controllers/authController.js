@@ -36,7 +36,7 @@ async function register (req, res) {
 }
 
 async function login (req, res) {
-  const { username, password } = req.body;
+  const { username, password, loginType } = req.body;
   if (username && password) {
     if (!validateUsername(username) || !validatePassword(password)) {
       return res.status(401).json({ message: 'Invalid username or password' });
@@ -46,6 +46,7 @@ async function login (req, res) {
       const result = await authService.loginUser(req.app.locals.database, {
         username,
         password,
+        loginType
       });
       res.status(201).json(result);
     } catch (error) {

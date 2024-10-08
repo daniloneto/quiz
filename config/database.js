@@ -5,5 +5,21 @@ async function connectToDatabase () {
   await client.connect();
   return client.db(process.env.DB_NAME);
 }
+async function initializeDatabase (database) {
+  // Índice TTL para expirar documentos após 24 horas se não estiverem ativados
+  await database.collection('profile').createIndex(
+    { 'createdAt': 1 },
+    { expireAfterSeconds: 3600, partialFilterExpression: { ativado: false } } // 1 hora
+  );
 
-module.exports = { connectToDatabase };
+  // Índice TTL para expirar documentos após 24 horas se não estiverem ativados
+  await database.collection('users').createIndex(
+    { 'createdAt': 1 },
+    { expireAfterSeconds: 3600, partialFilterExpression: { ativado: false } } // 1 hora
+  );
+
+  // Outros índices que você pode precisar
+  await database.collection('users').createIndex({ username: 1 }, { unique: true });  
+  // Adicione outros índices conforme necessário
+}
+module.exports = { connectToDatabase,initializeDatabase };
