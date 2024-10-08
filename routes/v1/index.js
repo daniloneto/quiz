@@ -11,7 +11,7 @@ const router = express.Router();
 
 // Rota para servir o arquivo index.html
 router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../../public', 'index.html'));
 });
 
 // Outras rotas versionadas

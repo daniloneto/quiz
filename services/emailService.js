@@ -1,6 +1,6 @@
 const { MailerSend, EmailParams, Recipient, Sender } = require('mailersend');
 
-async function sendActivationEmail(email, token) {
+async function sendActivationEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
   const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];
@@ -14,7 +14,7 @@ async function sendActivationEmail(email, token) {
   await mailersend.email.send(emailParams);
 }
 
-async function sendResetPasswordEmail(email, token) {
+async function sendResetPasswordEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
   const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];

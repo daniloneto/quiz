@@ -1,6 +1,7 @@
 const express = require('express');
 const profileController = require('../../controllers/profileController');
 const { authenticateToken,verifyApiKey } = require('../../middlewares/authMiddleware');
+
 const router = express.Router();
 
 router.get('/id/:id', authenticateToken, verifyApiKey, profileController.getProfile);
