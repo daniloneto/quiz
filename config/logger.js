@@ -30,7 +30,8 @@ const logger = createLogger({
       db: process.env.MONGODB_URI,
       collection: 'log',
       tryReconnect: true,
-      format: mongoFormat
+      format: mongoFormat,
+      expireAfterSeconds: 2592000 // 30 dias
     })
   ]
 });

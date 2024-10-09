@@ -6,16 +6,19 @@ async function connectToDatabase () {
   return client.db(process.env.DB_NAME);
 }
 async function initializeDatabase (database) {
-  // Índice TTL para expirar documentos após 24 horas se não estiverem ativados
+  // Índice TTL para expirar documentos após X horas se não estiverem ativados
   await database.collection('profile').createIndex(
+    { 'createdAt': 1 },
+    { expireAfterSeconds: 3600, partialFilterExpression: { ativado: false } } // 1 hora
+  );  
+  await database.collection('users').createIndex(
     { 'createdAt': 1 },
     { expireAfterSeconds: 3600, partialFilterExpression: { ativado: false } } // 1 hora
   );
 
-  // Índice TTL para expirar documentos após 24 horas se não estiverem ativados
-  await database.collection('users').createIndex(
+  await database.collection('passwordResetTokens').createIndex(
     { 'createdAt': 1 },
-    { expireAfterSeconds: 3600, partialFilterExpression: { ativado: false } } // 1 hora
+    { expireAfterSeconds: 300 } // 5 minutos
   );
 
   // Outros índices que você pode precisar

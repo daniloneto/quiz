@@ -5,7 +5,7 @@ async function sendActivationEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
   const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];
-  logger.info('Token enviado: ', token);
+  logger.info(`Token enviado: ${token}`);
   const emailParams = new EmailParams()
     .setFrom(sentFrom)
     .setTo(recipients)
@@ -19,7 +19,7 @@ async function sendResetPasswordEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
   const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];
-  logger.info('Token enviado: ', token);
+  logger.info(`Token enviado: ${token}`);
   const emailParams = new EmailParams()
     .setFrom(sentFrom)
     .setTo(recipients)
