@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const fileUploadMiddleware = require('./middlewares/fileUploadMiddleware');
 const { connectToDatabase,initializeDatabase } = require('./config/database');
 //const { redisClient } = require('./config/redis');
 const routes = require('./routes');
@@ -14,6 +15,7 @@ const port = process.env.PORT;
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
+app.use(fileUploadMiddleware);
 morgan.format('custom', ':remote-addr :method :url :status :response-time ms - :referrer');
 
 app.use(morgan('custom', {
