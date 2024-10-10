@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Atualizações para pacotes npm (Node.js)
+  - package-ecosystem: "npm"
+    directory: "/" # Localização do arquivo package.json
+    schedule:
+      interval: "weekly"
