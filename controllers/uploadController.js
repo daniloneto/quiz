@@ -28,6 +28,7 @@ const processUpload = async (req, res) => {
   const numQuestions = req.body.numQuestions;
   const quizTitle = req.body.quizTitle; 
   const examTitle = req.body.examTitle; 
+  const lingua = req.body.lingua;
   
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files were uploaded.');
@@ -70,7 +71,7 @@ A resposta deve estar no seguinte formato JSON:
 }
 - Apenas uma das opções por pergunta deve ser marcada como "correct": true.
 - Todos os textos devem ser escapados corretamente para evitar problemas de caracteres.
-- Use o seguinte conteúdo para gerar as perguntas: ${chunk}
+- Use o seguinte conteúdo para gerar as perguntas em ${lingua}: ${chunk}
       `;
       const response = await openai.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
@@ -79,9 +80,7 @@ A resposta deve estar no seguinte formato JSON:
       });    
       const jsonResponse = response.choices[0].message.content.replace(/```json|```/g, '').trim();      
       return jsonResponse;
-    }));
-
-    logger.info(`results: ${JSON.stringify(results)}`);
+    })); 
 
     const perguntasCombinadas = {
       questions: results.reduce((acc, jsonString) => {
@@ -94,8 +93,7 @@ A resposta deve estar no seguinte formato JSON:
 
     await collection.updateOne(
       { 'title': examTitle },
-      { $push: { quizzes: { title: quizTitle, questions: perguntasCombinadas.questions } } },
-      //{ $push: { 'quizzes.$.questions': { $each: JSON.parse(`[${quizQuestions}]`) } } }
+      { $push: { quizzes: { title: quizTitle, questions: perguntasCombinadas.questions } } },      
     );
     res.send('Questões inseridas com sucesso');    
   } else {
