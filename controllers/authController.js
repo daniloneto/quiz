@@ -76,7 +76,7 @@ async function forgotPassword (req, res) {
       req.app.locals.database,
       sanitizedEmail
     );
-    await emailService.sendResetPasswordEmail(sanitizedEmail, result.token);
+    await emailService.sendResetPasswordEmail(sanitizedEmail, result.verificationToken);
     res
       .status(200)
       .json({ message: 'E-mail de redefinição de senha enviado.' });
