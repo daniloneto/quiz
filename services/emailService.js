@@ -3,7 +3,7 @@ const logger = require('../config/logger');
 
 async function sendActivationEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
-  const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
+  const sentFrom = new Sender('lkk.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];
   logger.info(`Token enviado: ${token}`);
   const emailParams = new EmailParams()
@@ -17,7 +17,7 @@ async function sendActivationEmail (email, token) {
 
 async function sendResetPasswordEmail (email, token) {
   const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
-  const sentFrom = new Sender('MS_InzujB@trial-0p7kx4xpqdvl9yjr.mlsender.net', 'CertQuiz');
+  const sentFrom = new Sender('ioiuoiu.mlsender.net', 'CertQuiz');
   const recipients = [new Recipient(email, 'User')];
   logger.info(`Token enviado: ${token}`);
   const emailParams = new EmailParams()
