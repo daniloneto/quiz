@@ -3,57 +3,31 @@ const sesClient = require('../config/sesConfig');
 const logger = require('../config/logger');
 
 async function sendActivationEmail (email, token) {
-  const params = {
-    Source: 'naoresponda@certquiz.com.br',
-    Destination: {
-      ToAddresses: [email]
-    },
-    Message: {
-      Subject: {
-        Data: 'CertQuiz - Verificação de e-mail'
-      },
-      Body: {
-        Html: {
-          Data: `Ative sua conta CertQuiz. Digite o código quando solicitado: ${token}`
-        }
-      }
-    }
-  };
+  const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
+  const sentFrom = new Sender('lkk.mlsender.net', 'CertQuiz');
+  const recipients = [new Recipient(email, 'User')];
+  logger.info(`Token enviado: ${token}`);
+  const emailParams = new EmailParams()
+    .setFrom(sentFrom)
+    .setTo(recipients)
+    .setSubject('CertQuiz - Verificação de e-mail')
+    .setHtml(`Ative sua conta CertQuiz. Digite o código quando solicitado: ${token}`);
 
-  try {
-    const command = new SendEmailCommand(params);
-    const data = await sesClient.send(command);
-    logger.info(`Email de ativação enviado com sucesso: ${data.MessageId}`);
-  } catch (err) {
-    logger.error('Erro ao enviar email de ativação:', err);
-  }
+  await mailersend.email.send(emailParams);
 }
 
 async function sendResetPasswordEmail (email, token) {
-  const params = {
-    Source: 'naoresponda@certquiz.com.br',
-    Destination: {
-      ToAddresses: [email]
-    },
-    Message: {
-      Subject: {
-        Data: 'CertQuiz - Redefinição de senha'
-      },
-      Body: {
-        Html: {
-          Data: `Digite o código quando solicitado: ${token}`
-        }
-      }
-    }
-  };
+  const mailersend = new MailerSend({ apiKey: process.env.MAILSEND_KEY });
+  const sentFrom = new Sender('ioiuoiu.mlsender.net', 'CertQuiz');
+  const recipients = [new Recipient(email, 'User')];
+  logger.info(`Token enviado: ${token}`);
+  const emailParams = new EmailParams()
+    .setFrom(sentFrom)
+    .setTo(recipients)
+    .setSubject('CertQuiz - Redefinição de senha')
+    .setHtml(`Digite o código quando solicitado: ${token}`);
 
-  try {
-    const command = new SendEmailCommand(params);
-    const data = await sesClient.send(command);
-    logger.info(`Email de redefinição de senha enviado com sucesso: ${data.MessageId}`);
-  } catch (err) {
-    logger.error('Erro ao enviar email de redefinição de senha:', err);
-  }
+  await mailersend.email.send(emailParams);
 }
 
 module.exports = {
