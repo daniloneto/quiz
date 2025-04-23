@@ -1,4 +1,5 @@
-const { MailerSend, EmailParams, Recipient, Sender } = require('mailersend');
+const { SendEmailCommand } = require('@aws-sdk/client-ses');
+const sesClient = require('../config/sesConfig');
 const logger = require('../config/logger');
 
 async function sendActivationEmail (email, token) {
@@ -31,5 +32,5 @@ async function sendResetPasswordEmail (email, token) {
 
 module.exports = {
   sendActivationEmail,
-  sendResetPasswordEmail,
+  sendResetPasswordEmail
 };
