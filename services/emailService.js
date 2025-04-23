@@ -1,5 +1,4 @@
 const { SendEmailCommand } = require('@aws-sdk/client-ses');
-const sesClient = require('../config/sesConfig');
 const logger = require('../config/logger');
 
 async function sendActivationEmail (email, token) {
