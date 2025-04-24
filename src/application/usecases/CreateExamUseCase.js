@@ -1,4 +1,4 @@
-const Exam = require('../../domain/entities/Exam');
+import Exam from '../../domain/entities/Exam';
 
 /**
  * Use case for creating a new exam.
@@ -23,4 +23,4 @@ class CreateExamUseCase {
   }
 }
 
-module.exports = CreateExamUseCase;
+export default CreateExamUseCase;

@@ -17,5 +17,31 @@ module.exports = {
     }
   },
   testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
-  verbose: true
+  verbose: true,
+  
+  // Add transformers for JavaScript files
+  transform: {
+    '^.+\\.(js|jsx)$': ['babel-jest', {
+      presets: [
+        ['@babel/preset-env', {
+          targets: {
+            node: 'current'
+          }
+        }]
+      ]
+    }]
+  },
+  
+  // Configure which node_modules should be transformed
+  transformIgnorePatterns: [
+    '/node_modules/(?!(argon2|jsonwebtoken|mongodb|mailersend|winston|winston-mongodb)/)'
+  ],
+  
+  // Supported file extensions
+  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+
+  // Ignore coverage paths
+  coveragePathIgnorePatterns: [
+    '/node_modules/'
+  ]
 };

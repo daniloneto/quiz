@@ -1,7 +1,7 @@
-const { createLogger, format, transports } = require('winston');
+import { createLogger, format, transports } from 'winston';
+import 'winston-mongodb';
 
 const { combine, timestamp, printf, metadata } = format;
-require('winston-mongodb');
 
 const logFormat = printf(({ level, message, timestamp, metadata }) => {
   const metaString = metadata && Object.keys(metadata).length ? JSON.stringify(metadata) : '';
@@ -36,4 +36,4 @@ const logger = createLogger({
   ]
 });
 
-module.exports = logger;
+export default logger;

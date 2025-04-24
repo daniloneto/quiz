@@ -1,5 +1,5 @@
-const { ObjectId } = require('mongodb');
-const ExamRepository = require('../../domain/repositories/ExamRepository');
+import { ObjectId } from 'mongodb';
+import ExamRepository from '../../domain/repositories/ExamRepository';
 
 /**
  * MongoDB implementation of ExamRepository.
@@ -36,6 +36,20 @@ class MongoExamRepository extends ExamRepository {
       createdAt: doc.createdAt,
     }));
   }
+  
+  async findAllExams() {
+    const docs = await this.collection.find({}).toArray();  
+    return docs.map(doc => ({
+      id: doc._id.toString(), 
+      title: doc.title,
+      description: doc.description,
+      quizzes: doc.quizzes,
+      createdAt: doc.createdAt,
+    }));
+  }
+  
+
+
 
   async countExams() {
     return this.collection.countDocuments();
@@ -149,4 +163,4 @@ class MongoExamRepository extends ExamRepository {
   }
 }
 
-module.exports = MongoExamRepository;
+export default MongoExamRepository;

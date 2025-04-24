@@ -20,10 +20,10 @@ export default async function handler(req, res) {
     try {
       await deleteUseCase.execute({ id });
       return res.status(200).json({ message: 'Prova excluída com sucesso' });
-    } catch (error) {
-      console.error('Erro ao excluir a prova:', error);
-      if (error.message === 'Prova não encontrada') {
-        return res.status(404).json({ message: error.message });
+    } catch(err) {
+      console.error('Erro ao excluir a prova:', err);
+      if (String(err) === 'Error: Prova não encontrada') {
+        return res.status(404).json({ message: String(err) });
       }
       return res.status(500).json({ message: 'Erro ao excluir a prova' });
     }
@@ -36,10 +36,10 @@ export default async function handler(req, res) {
     try {
       const quiz = await getQuizUseCase.execute({ title, index });
       return res.status(200).json(quiz);
-    } catch (error) {
-      console.error('Erro ao obter o quiz:', error);
-      if (error.message === 'Prova não encontrada' || error.message === 'Quiz não encontrado') {
-        return res.status(404).json({ message: error.message });
+    } catch(err) {
+      console.error('Erro ao obter o quiz:', err);
+      if (String(err) === 'Error: Prova não encontrada' || String(err) === 'Error: Quiz não encontrado') {
+        return res.status(404).json({ message: String(err) });
       }
       return res.status(500).json({ message: 'Erro ao obter o quiz' });
     }

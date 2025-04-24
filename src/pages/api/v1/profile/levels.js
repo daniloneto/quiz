@@ -17,8 +17,8 @@ export default async function handler(req, res) {
     const levels = await getLevelsUseCase.execute();
     const dto = levels.map(lvl => ({ nivel: lvl.level, pontos: lvl.minPoints, limiteSuperior: lvl.maxPoints }));
     return res.status(200).json(dto);
-  } catch (error) {
-    console.error('Erro ao buscar os níveis:', error);
+  } catch(err) {
+    console.error('Erro ao buscar os níveis:', err);
     return res.status(500).json({ message: 'Erro interno do servidor' });
   }
 }

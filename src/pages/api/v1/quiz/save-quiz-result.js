@@ -20,8 +20,8 @@ export default async function handler(req, res) {
       return res.status(201).json({ message: 'Resultado do quiz salvo com sucesso.', resultId });
     }
     return res.status(200).json({ message: 'Resultado do quiz atualizado com sucesso.' });
-  } catch (error) {
-    console.error('Erro ao salvar resultado do quiz:', error);
-    return res.status(400).json({ message: error.message });
+  } catch(err) {
+    console.error('Erro ao salvar resultado do quiz:', err);
+    return res.status(400).json({ message: String(err) });
   }
 }

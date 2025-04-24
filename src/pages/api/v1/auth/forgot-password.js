@@ -5,6 +5,7 @@ import VerificationTokenService from '../../../../infrastructure/services/Verifi
 import EmailService from '../../../../infrastructure/services/EmailService';
 import { verifyApiKey } from '../../../../lib/middleware';
 import validator from 'validator';
+import logger from '../../../../config/logger'; 
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -26,8 +27,8 @@ export default async function handler(req, res) {
     const { verificationToken } = await forgotUseCase.execute({ email: sanitizedEmail });
     await emailService.sendResetPasswordEmail(sanitizedEmail, verificationToken);
     return res.status(200).json({ message: 'E-mail de redefinição de senha enviado.' });
-  } catch (error) {
-    console.error('Erro ao processar forgot-password:', error);
-    return res.status(400).json({ message: error.message });
+  } catch(err) {
+    logger.error('Erro ao processar forgot-password:', err);
+    return res.status(400).json({ message: String(err)});
   }
 }

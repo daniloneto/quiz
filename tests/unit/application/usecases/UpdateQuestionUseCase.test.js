@@ -1,4 +1,4 @@
-const UpdateQuestionUseCase = require('../../../../src/application/usecases/UpdateQuestionUseCase');
+import UpdateQuestionUseCase from '../../../../src/application/usecases/UpdateQuestionUseCase';
 
 describe('UpdateQuestionUseCase', () => {
   let useCase;

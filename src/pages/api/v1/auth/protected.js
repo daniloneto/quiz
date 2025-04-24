@@ -1,4 +1,3 @@
-import { connectToDatabase } from '../../../../config/database';
 import ProtectedUseCase from '../../../../application/usecases/ProtectedUseCase';
 import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
 
