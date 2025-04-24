@@ -1,15 +1,33 @@
+const fs = require('fs');
+const path = require('path');
+const logger = require('../../../../config/logger');
 import { connectToDatabase } from '../../../../config/database';
-import backupController from '../../../../controllers/backupController';
-import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
-
+import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
+import FindAllExamsUseCase from '../../../../application/usecases/FindAllExamsUseCase';
+/**
+ * API route handler for creating backups
+ */
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  // Only allow POST method
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
-  const db = await connectToDatabase();
-  req.app = { locals: { database: db } };
-  if (!verifyApiKey(req, res)) return;
-  if (!authenticateToken(req, res)) return;
-  return backupController.createBackup(req, res);
+
+  try {
+    const db = await connectToDatabase();
+    const repository = new MongoExamRepository(db);
+    const findAllExamsUseCase = new FindAllExamsUseCase({ examRepository: repository });
+    const exams = await findAllExamsUseCase.execute();
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    console.log(__dirname);
+    const backupPath = path.join(__dirname, `../../../../../../../backup-${timestamp}.json`);
+
+    fs.writeFileSync(backupPath, JSON.stringify(exams, null, 2), 'utf-8');
+    
+    return res.status(200).send('Sucesso');
+  } catch (error) { 
+    logger.error('Erro ao fazer backup:', error);
+    res.status(500).send('Erro ao fazer backup');
+  }
 }

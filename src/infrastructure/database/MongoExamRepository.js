@@ -36,6 +36,19 @@ class MongoExamRepository extends ExamRepository {
       createdAt: doc.createdAt,
     }));
   }
+  
+  async findAllExams() {
+    const docs = await this.collection.find({}).toArray();  
+    return docs.map(doc => ({
+      id: doc._id.toString(), 
+      title: doc.title,
+      description: doc.description,
+      quizzes: doc.quizzes,
+      createdAt: doc.createdAt,
+    }));
+  }
+  
+
 
   async countExams() {
     return this.collection.countDocuments();
