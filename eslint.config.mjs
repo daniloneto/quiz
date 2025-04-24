@@ -1,30 +1,9 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
-import importPlugin from 'eslint-plugin-import';
+import js from "@eslint/js";
+import globals from "globals";
+import { defineConfig } from "eslint/config";
 
-export default [
-  {
-    files: ['**/*.js'],
-    languageOptions: {
-      sourceType: 'commonjs',
-      ecmaVersion: 2020,
-      globals: globals.node,
-    },
-    plugins: {
-      import: importPlugin,
-    },
-    rules: {
-      'indent': ['error', 2],
-      'quotes': ['error', 'single'],
-      'semi': ['error', 'always'],
-      'no-console': 'off',
-      'no-unused-vars': ['warn', { 'vars': 'all', 'args': 'after-used', 'ignoreRestSiblings': false }],
-      'prefer-const': 'error',
-      'space-before-function-paren': ['error', 'always'],
-      'import/order': ['error', { 'groups': [['builtin', 'external', 'internal']] }],
-      'import/no-unresolved': 'error',
-      'import/newline-after-import': 'error',
-    },
-  },
-  pluginJs.configs.recommended,
-];
+
+export default defineConfig([
+  { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
+  { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: globals.browser } },
+]);
