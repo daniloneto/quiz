@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 /**
  * Service for signing and verifying JWT tokens.
@@ -13,4 +13,4 @@ class JwtService {
   }
 }
 
-module.exports = JwtService;
+export default JwtService;

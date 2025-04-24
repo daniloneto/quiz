@@ -1,7 +1,7 @@
-const { ObjectId } = require('mongodb');
-const ProfileRepository = require('../../domain/repositories/ProfileRepository');
-const Profile = require('../../domain/entities/Profile');
-const Level = require('../../domain/entities/Level');
+import { ObjectId } from 'mongodb';
+import ProfileRepository from '../../domain/repositories/ProfileRepository';
+import Profile from '../../domain/entities/Profile';
+import Level from '../../domain/entities/Level';
 
 /**
  * MongoDB implementation of ProfileRepository.
@@ -48,4 +48,4 @@ class MongoProfileRepository extends ProfileRepository {
   }
 }
 
-module.exports = MongoProfileRepository;
+export default MongoProfileRepository;

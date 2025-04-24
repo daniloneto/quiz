@@ -4,6 +4,7 @@ import MongoAuthRepository from '../../../../infrastructure/database/MongoAuthRe
 import Argon2PasswordService from '../../../../infrastructure/services/Argon2PasswordService';
 import JwtService from '../../../../infrastructure/services/JwtService';
 import { verifyApiKey } from '../../../../lib/middleware';
+import logger from '../../../../config/logger'; 
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -20,8 +21,8 @@ export default async function handler(req, res) {
   try {
     const result = await loginUseCase.execute({ username, password, loginType });
     return res.status(200).json(result);
-  } catch (error) {
-    console.error('Erro ao logar usuário:', error);
-    return res.status(401).json({ message: error.message });
+  } catch(err) {
+    logger.error('Erro ao logar usuário:', err);
+    return res.status(401).json({ message: String(err) });
   }
 }

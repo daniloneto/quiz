@@ -1,4 +1,4 @@
-const SaveQuizResultUseCase = require('../../../../src/application/usecases/SaveQuizResultUseCase');
+import SaveQuizResultUseCase from '../../../../src/application/usecases/SaveQuizResultUseCase';
 
 describe('SaveQuizResultUseCase', () => {
   let useCase;

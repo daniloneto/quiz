@@ -1,4 +1,4 @@
-const QuizResultRepository = require('../../../../src/domain/repositories/QuizResultRepository');
+import QuizResultRepository from '../../../../src/domain/repositories/QuizResultRepository';
 
 describe('QuizResultRepository', () => {
   let repository;

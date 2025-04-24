@@ -1,10 +1,16 @@
-const MongoQuizResultRepository = require('../../../../src/infrastructure/database/MongoQuizResultRepository');
-const { ObjectId } = require('mongodb');
+// Mock the entire mongodb module with inline function definition
+jest.mock('mongodb', () => {
+  const mockObjectId = function(id) {
+    return {
+      toString: () => id || 'mock-id'
+    };
+  };
+  return { ObjectId: mockObjectId };
+});
 
-// Mock ObjectId to avoid requiring MongoDB in tests
-jest.mock('mongodb', () => ({
-  ObjectId: jest.fn(id => ({ toString: () => id }))
-}));
+// Import the mock to use in tests
+import { ObjectId } from 'mongodb';
+import MongoQuizResultRepository from '../../../../src/infrastructure/database/MongoQuizResultRepository';
 
 describe('MongoQuizResultRepository', () => {
   let repository;
@@ -59,7 +65,7 @@ describe('MongoQuizResultRepository', () => {
 
       mockCollection.updateOne.mockResolvedValue({
         upsertedCount: 1,
-        upsertedId: { _id: new ObjectId('789') }
+        upsertedId: { _id: ObjectId('789') }
       });
 
       const result = await repository.saveQuizResult(params);
@@ -97,9 +103,9 @@ describe('MongoQuizResultRepository', () => {
       const userId = '123';
       const mockResults = [
         {
-          _id: new ObjectId('result1'),
-          userId: new ObjectId('123'),
-          examId: new ObjectId('456'),
+          _id: ObjectId('result1'),
+          userId: ObjectId('123'),
+          examId: ObjectId('456'),
           quizzes: [
             {
               quizIndex: 0,

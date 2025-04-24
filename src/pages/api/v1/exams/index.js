@@ -17,8 +17,8 @@ export default async function handler(req, res) {
       try {
         const result = await listUseCase.execute({ page, limit });
         return res.status(200).json(result);
-      } catch (error) {
-        console.error('Erro ao obter as provas:', error);
+      } catch(err) {
+        console.error('Erro ao obter as provas:', err);
         return res.status(500).json({ message: 'Erro ao obter as provas' });
       }
     }
@@ -27,9 +27,9 @@ export default async function handler(req, res) {
       try {
         await createUseCase.execute(req.body);
         return res.status(201).json({ message: 'Prova cadastrada com sucesso' });
-      } catch (error) {
-        console.error('Erro ao cadastrar a prova:', error);
-        return res.status(400).json({ message: error.message });
+      } catch(err) {
+        console.error('Erro ao cadastrar a prova:', err);
+        return res.status(400).json({ message: String(err) });
       }
     }
     default:

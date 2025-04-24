@@ -2,7 +2,7 @@ import { connectToDatabase } from '../../../../../config/database';
 import GetProfileUseCase from '../../../../../application/usecases/GetProfileUseCase';
 import MongoProfileRepository from '../../../../../infrastructure/database/MongoProfileRepository';
 import { verifyApiKey, authenticateToken } from '../../../../../lib/middleware';
-
+import logger from '../../../../../config/logger'; 
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!id) {
@@ -24,10 +24,10 @@ export default async function handler(req, res) {
         nivel: profile.level,
         data_criacao: profile.createdAt
       });
-    } catch (error) {
-      console.error('Erro ao buscar o perfil:', error);
-      if (error.message === 'Perfil não encontrado') {
-        return res.status(404).json({ message: error.message });
+    } catch(err) {
+      logger.error('Erro ao buscar o perfil:', err);
+      if (String(err) === 'Error: Perfil não encontrado') {
+        return res.status(404).json({ message: String(err)});
       }
       return res.status(500).json({ message: 'Erro interno do servidor' });
     }

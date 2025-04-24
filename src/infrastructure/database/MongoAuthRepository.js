@@ -1,5 +1,5 @@
-const { ObjectId } = require('mongodb');
-const AuthRepository = require('../../domain/repositories/AuthRepository');
+import { ObjectId } from 'mongodb';
+import AuthRepository from '../../domain/repositories/AuthRepository';
 
 /**
  * MongoDB implementation of AuthRepository.
@@ -105,4 +105,4 @@ class MongoAuthRepository extends AuthRepository {
   }
 }
 
-module.exports = MongoAuthRepository;
+export default MongoAuthRepository;

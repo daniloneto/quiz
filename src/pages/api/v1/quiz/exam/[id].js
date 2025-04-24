@@ -17,10 +17,10 @@ export default async function handler(req, res) {
     try {
       const quizzes = await getUseCase.execute({ examId: id });
       return res.status(200).json(quizzes);
-    } catch (error) {
-      console.error('Erro ao obter o quiz:', error);
-      if (error.message === 'Exame não encontrado') {
-        return res.status(404).json({ message: error.message });
+    } catch(err) {
+      console.error('Erro ao obter o quiz:', err);
+      if (String(err) === 'Error: Exame não encontrado') {
+        return res.status(404).json({ message: String(err) });
       }
       return res.status(500).json({ message: 'Erro ao obter o quiz' });
     }
