@@ -1,19 +1,21 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: 'node',
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/.next/',
-    '/pages/',
-    '/lib/middleware.js$'
+  roots: ['<rootDir>/tests'],
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/**/*.config.js',
+    '!**/node_modules/**',
+    '!**/vendor/**'
   ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/.next/',
-    '/pages/api/',
-    '/node_modules/'
-  ],
-  verbose: true,
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
+    }
+  },
+  testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
+  verbose: true
 };
