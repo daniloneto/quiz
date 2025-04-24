@@ -21,7 +21,15 @@ module.exports = {
   
   // Add transformers for JavaScript files
   transform: {
-    '^.+\\.jsx?$': 'babel-jest'
+    '^.+\\.(js|jsx)$': ['babel-jest', {
+      presets: [
+        ['@babel/preset-env', {
+          targets: {
+            node: 'current'
+          }
+        }]
+      ]
+    }]
   },
   
   // Configure which node_modules should be transformed
@@ -30,5 +38,10 @@ module.exports = {
   ],
   
   // Supported file extensions
-  moduleFileExtensions: ['js', 'jsx', 'json', 'node']
+  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+
+  // Ignore coverage paths
+  coveragePathIgnorePatterns: [
+    '/node_modules/'
+  ]
 };
