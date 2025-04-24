@@ -1,4 +1,4 @@
-const GetQuizResultsUseCase = require('../../../../src/application/usecases/GetQuizResultsUseCase');
+import GetQuizResultsUseCase from '../../../../src/application/usecases/GetQuizResultsUseCase';
 
 describe('GetQuizResultsUseCase', () => {
   let useCase;

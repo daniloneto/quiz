@@ -19,11 +19,11 @@ export default async function handler(req, res) {
   try {
     const result = await updatePointsUseCase.execute({ userId, points: pontos });
     return res.status(200).json({ success: true, nivel: result.nivel });
-  } catch (error) {
-    console.error('Erro ao atualizar pontos:', error);
-    if (error.message === 'Usuário não encontrado') {
-      return res.status(404).json({ success: false, message: error.message });
+  } catch(err) {
+    console.error('Erro ao atualizar pontos:', err);
+    if (String(err) === 'Error: Usuário não encontrado') {
+      return res.status(404).json({ success: false, message: String(err) });
     }
-    return res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: String(err) });
   }
 }

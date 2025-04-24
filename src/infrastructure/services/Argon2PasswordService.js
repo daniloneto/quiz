@@ -1,4 +1,4 @@
-const argon2 = require('argon2');
+import argon2 from 'argon2';
 
 /**
  * Service for hashing and verifying passwords using Argon2.
@@ -13,4 +13,4 @@ class Argon2PasswordService {
   }
 }
 
-module.exports = Argon2PasswordService;
+export default Argon2PasswordService;

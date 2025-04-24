@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 // Adapted for caching MongoDB connection across lambda invocations
 const uri = process.env.MONGODB_URI;
@@ -42,4 +42,4 @@ async function initializeDatabase (database) {
   await database.collection('users').createIndex({ username: 1 }, { unique: true });  
   // Adicione outros índices conforme necessário
 }
-module.exports = { connectToDatabase,initializeDatabase };
+export { connectToDatabase, initializeDatabase };

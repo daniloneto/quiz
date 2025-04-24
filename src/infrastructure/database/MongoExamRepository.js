@@ -1,5 +1,5 @@
-const { ObjectId } = require('mongodb');
-const ExamRepository = require('../../domain/repositories/ExamRepository');
+import { ObjectId } from 'mongodb';
+import ExamRepository from '../../domain/repositories/ExamRepository';
 
 /**
  * MongoDB implementation of ExamRepository.
@@ -48,6 +48,7 @@ class MongoExamRepository extends ExamRepository {
     }));
   }
   
+
 
 
   async countExams() {
@@ -162,4 +163,4 @@ class MongoExamRepository extends ExamRepository {
   }
 }
 
-module.exports = MongoExamRepository;
+export default MongoExamRepository;

@@ -1,5 +1,5 @@
-const { MailerSend, Sender, Recipient, EmailParams } = require('mailersend');
-const logger = require('../../config/logger');
+import { MailerSend, Sender, Recipient, EmailParams } from 'mailersend';
+import logger from '../../config/logger';
 
 /**
  * Service for sending emails via MailerSend.
@@ -34,4 +34,4 @@ class EmailService {
   }
 }
 
-module.exports = EmailService;
+export default EmailService;

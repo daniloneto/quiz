@@ -1,9 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const logger = require('../../../../config/logger');
+import fs from 'fs';
+import path from 'path';
+import logger from '../../../../config/logger';
 import { connectToDatabase } from '../../../../config/database';
 import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
 import FindAllExamsUseCase from '../../../../application/usecases/FindAllExamsUseCase';
+
 /**
  * API route handler for creating backups
  */
@@ -26,8 +27,8 @@ export default async function handler(req, res) {
     fs.writeFileSync(backupPath, JSON.stringify(exams, null, 2), 'utf-8');
     
     return res.status(200).send('Sucesso');
-  } catch (error) { 
-    logger.error('Erro ao fazer backup:', error);
+  } catch(err) { 
+    logger.error('Erro ao fazer backup:', err);
     res.status(500).send('Erro ao fazer backup');
   }
 }

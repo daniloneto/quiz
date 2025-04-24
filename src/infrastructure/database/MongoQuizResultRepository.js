@@ -1,5 +1,5 @@
-const { ObjectId } = require('mongodb');
-const QuizResultRepository = require('../../domain/repositories/QuizResultRepository');
+import { ObjectId } from 'mongodb';
+import QuizResultRepository from '../../domain/repositories/QuizResultRepository';
 
 /**
  * MongoDB implementation of QuizResultRepository.
@@ -54,4 +54,4 @@ class MongoQuizResultRepository extends QuizResultRepository {
   }
 }
 
-module.exports = MongoQuizResultRepository;
+export default MongoQuizResultRepository;
