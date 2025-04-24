@@ -1,4 +1,4 @@
-const Option = require('./Option');
+import Option from './Option';
 
 /**
  * Domain entity representing a question with multiple options.
@@ -15,4 +15,4 @@ class Question {
   }
 }
 
-module.exports = Question;
+export default Question;

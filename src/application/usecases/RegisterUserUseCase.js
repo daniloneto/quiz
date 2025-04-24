@@ -1,5 +1,5 @@
-const User = require('../../domain/entities/User');
-const Profile = require('../../domain/entities/Profile');
+import User from '../../domain/entities/User';
+import Profile from '../../domain/entities/Profile';
 
 /**
  * Use case for registering a new user.
@@ -43,4 +43,4 @@ class RegisterUserUseCase {
   }
 }
 
-module.exports = RegisterUserUseCase;
+export default RegisterUserUseCase;

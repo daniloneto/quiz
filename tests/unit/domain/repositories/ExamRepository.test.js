@@ -1,4 +1,4 @@
-const ExamRepository = require('../../../../src/domain/repositories/ExamRepository');
+import ExamRepository from '../../../../src/domain/repositories/ExamRepository';
 
 describe('ExamRepository', () => {
   let repository;

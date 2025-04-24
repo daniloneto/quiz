@@ -2,7 +2,6 @@ import { connectToDatabase } from '../../../../config/database';
 import ResetPasswordUseCase from '../../../../application/usecases/ResetPasswordUseCase';
 import MongoAuthRepository from '../../../../infrastructure/database/MongoAuthRepository';
 import Argon2PasswordService from '../../../../infrastructure/services/Argon2PasswordService';
-import { verifyApiKey } from '../../../../lib/middleware';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,8 +17,8 @@ export default async function handler(req, res) {
   try {
     const result = await resetUseCase.execute({ token, newPassword });
     return res.status(200).json(result);
-  } catch (error) {
-    console.error('Erro ao resetar senha:', error);
-    return res.status(400).json({ message: error.message });
+  } catch(err) {
+    console.error('Erro ao resetar senha:', err);
+    return res.status(400).json({ message: String(err) });
   }
 }

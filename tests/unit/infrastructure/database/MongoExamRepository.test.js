@@ -1,10 +1,16 @@
-const MongoExamRepository = require('../../../../src/infrastructure/database/MongoExamRepository');
-const { ObjectId } = require('mongodb');
+// Mock the entire mongodb module with inline function definition
+jest.mock('mongodb', () => {
+  const mockObjectId = function(id) {
+    return {
+      toString: () => id || 'mock-id'
+    };
+  };
+  return { ObjectId: mockObjectId };
+});
 
-// Mock ObjectId to avoid requiring MongoDB in tests
-jest.mock('mongodb', () => ({
-  ObjectId: jest.fn(id => ({ toString: () => id }))
-}));
+// Import the mock to use in tests
+import { ObjectId } from 'mongodb';
+import MongoExamRepository from '../../../../src/infrastructure/database/MongoExamRepository';
 
 describe('MongoExamRepository', () => {
   let repository;
@@ -51,7 +57,7 @@ describe('MongoExamRepository', () => {
       createdAt: new Date()
     };
 
-    const insertedId = new ObjectId('123456789012');
+    const insertedId = ObjectId('123456789012');
     mockCollection.insertOne.mockResolvedValue({ insertedId });
 
     const result = await repository.saveExam(examEntity);
@@ -66,8 +72,8 @@ describe('MongoExamRepository', () => {
 
   test('findExams should retrieve paginated exams', async () => {
     const mockExams = [
-      { _id: new ObjectId('1'), title: 'Exam 1', quizzes: [] },
-      { _id: new ObjectId('2'), title: 'Exam 2', quizzes: [] }
+      { _id: ObjectId('1'), title: 'Exam 1', quizzes: [] },
+      { _id: ObjectId('2'), title: 'Exam 2', quizzes: [] }
     ];
 
     const mockToArray = mockCollection.find().toArray;
@@ -78,6 +84,24 @@ describe('MongoExamRepository', () => {
     expect(mockCollection.find).toHaveBeenCalledWith({});
     expect(mockCollection.find().skip).toHaveBeenCalledWith(10);
     expect(mockCollection.find().limit).toHaveBeenCalledWith(10);
+    expect(result).toHaveLength(2);
+    expect(result[0].id).toBe('1');
+    expect(result[1].id).toBe('2');
+  });
+
+  test('findAllExams should retrieve all exams without pagination', async () => {
+    const mockExams = [
+      { _id: ObjectId('1'), title: 'Exam 1', quizzes: [] },
+      { _id: ObjectId('2'), title: 'Exam 2', quizzes: [] }
+    ];
+
+    mockCollection.find.mockReturnValue({
+      toArray: jest.fn().mockResolvedValue(mockExams)
+    });
+
+    const result = await repository.findAllExams();
+
+    expect(mockCollection.find).toHaveBeenCalledWith({});
     expect(result).toHaveLength(2);
     expect(result[0].id).toBe('1');
     expect(result[1].id).toBe('2');
@@ -94,7 +118,7 @@ describe('MongoExamRepository', () => {
 
   test('findExamByTitle should find an exam by title', async () => {
     const mockExam = {
-      _id: new ObjectId('123'),
+      _id: ObjectId('123'),
       title: 'Test Exam',
       description: 'Description',
       quizzes: []
@@ -117,6 +141,34 @@ describe('MongoExamRepository', () => {
     const result = await repository.findExamByTitle('Nonexistent Exam');
 
     expect(mockCollection.findOne).toHaveBeenCalledWith({ title: 'Nonexistent Exam' });
+    expect(result).toBeNull();
+  });
+
+  test('findExamById should retrieve an exam by ID', async () => {
+    const mockExam = {
+      _id: ObjectId('123'),
+      title: 'Test Exam',
+      description: 'Description',
+      quizzes: []
+    };
+
+    mockCollection.findOne.mockResolvedValue(mockExam);
+
+    const result = await repository.findExamById('123');
+
+    expect(mockCollection.findOne).toHaveBeenCalledWith({ _id: expect.any(Object) });
+    expect(result).toEqual(expect.objectContaining({
+      id: '123',
+      title: 'Test Exam'
+    }));
+  });
+
+  test('findExamById should return null when no exam is found', async () => {
+    mockCollection.findOne.mockResolvedValue(null);
+
+    const result = await repository.findExamById('123');
+
+    expect(mockCollection.findOne).toHaveBeenCalledWith({ _id: expect.any(Object) });
     expect(result).toBeNull();
   });
 
@@ -201,9 +253,31 @@ describe('MongoExamRepository', () => {
     expect(result).toBe(false);
   });
 
+  test('updateQuestionInQuiz should update a question in a quiz', async () => {
+    const question = { text: 'Updated Question', options: [] };
+    mockCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+
+    const result = await repository.updateQuestionInQuiz('123', 0, 1, question);
+
+    expect(mockCollection.updateOne).toHaveBeenCalledWith(
+      { _id: expect.any(Object) },
+      { $set: { 'quizzes.0.questions.1': question } }
+    );
+    expect(result).toBe(true);
+  });
+
+  test('updateQuestionInQuiz should return false when update fails', async () => {
+    const question = { text: 'Updated Question', options: [] };
+    mockCollection.updateOne.mockResolvedValue({ modifiedCount: 0 });
+
+    const result = await repository.updateQuestionInQuiz('123', 0, 1, question);
+
+    expect(result).toBe(false);
+  });
+
   test('deleteQuestionFromQuiz should return false when quiz not found', async () => {
     const mockExam = {
-      _id: new ObjectId('123'),
+      _id: ObjectId('123'),
       quizzes: []
     };
     
@@ -216,7 +290,7 @@ describe('MongoExamRepository', () => {
 
   test('deleteQuestionFromQuiz should return false when question index invalid', async () => {
     const mockExam = {
-      _id: new ObjectId('123'),
+      _id: ObjectId('123'),
       quizzes: [{ title: 'Quiz 1', questions: [{ text: 'Q1' }] }]
     };
     
@@ -225,5 +299,33 @@ describe('MongoExamRepository', () => {
     const result = await repository.deleteQuestionFromQuiz('123', 0, 5);
     
     expect(result).toBe(false);
+  });
+
+  test('deleteQuestionFromQuiz should successfully delete a question', async () => {
+    const mockExam = {
+      _id: ObjectId('123'),
+      quizzes: [{ 
+        title: 'Quiz 1', 
+        questions: [{ text: 'Q1' }, { text: 'Q2' }] 
+      }]
+    };
+    
+    mockCollection.findOne.mockResolvedValue(mockExam);
+    mockCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+    
+    const result = await repository.deleteQuestionFromQuiz('123', 0, 1);
+    
+    expect(mockCollection.updateOne).toHaveBeenCalledWith(
+      { 
+        _id: expect.any(Object), 
+        'quizzes.0.title': 'Quiz 1' 
+      },
+      { 
+        $set: { 
+          'quizzes.0.questions': [{ text: 'Q1' }] 
+        } 
+      }
+    );
+    expect(result).toBe(true);
   });
 });

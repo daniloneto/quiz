@@ -26,10 +26,10 @@ export default async function handler(req, res) {
       try {
         await useCase.execute({ examTitle: exam, quizTitle: quiz, questionEntity });
         return res.status(200).json({ message: 'Pergunta adicionada com sucesso' });
-      } catch (error) {
-        console.error('Erro ao adicionar a pergunta:', error);
-        const status = error.message === 'Falha ao adicionar a pergunta.' ? 400 : 404;
-        return res.status(status).json({ message: error.message });
+      } catch(err) {
+        console.error('Erro ao adicionar a pergunta:', err);
+        const status = String(err) === 'Error: Falha ao adicionar a pergunta.' ? 400 : 404;
+        return res.status(status).json({ message: String(err) });
       }
     }
     case 'PUT': {
@@ -38,9 +38,9 @@ export default async function handler(req, res) {
       try {
         await useCase.execute({ examId, quizIndex, questionIndex, optionIndex, newValue });
         return res.status(200).json({ message: 'Pergunta atualizada com sucesso' });
-      } catch (error) {
-        console.error('Erro ao atualizar a pergunta:', error);
-        const msg = error.message;
+      } catch(err) {
+        console.error('Erro ao atualizar a pergunta:', err);
+        const msg = String(err);
         if (msg === 'Exame não encontrado') return res.status(404).json({ message: msg });
         return res.status(400).json({ message: msg });
       }
@@ -51,9 +51,9 @@ export default async function handler(req, res) {
       try {
         await useCase.execute({ examId, quizIndex, questionIndex });
         return res.status(200).json({ message: 'Pergunta deletada com sucesso' });
-      } catch (error) {
-        console.error('Erro ao deletar a pergunta:', error);
-        return res.status(400).json({ message: error.message });
+      } catch(err) {
+        console.error('Erro ao deletar a pergunta:', String(err));
+        return res.status(400).json({ message: String(err) });
       }
     }
     default:

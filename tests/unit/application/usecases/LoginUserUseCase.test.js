@@ -1,4 +1,4 @@
-const LoginUserUseCase = require('../../../../src/application/usecases/LoginUserUseCase');
+import LoginUserUseCase from '../../../../src/application/usecases/LoginUserUseCase';
 
 describe('LoginUserUseCase', () => {
   let useCase;

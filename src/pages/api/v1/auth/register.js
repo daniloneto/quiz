@@ -23,8 +23,8 @@ export default async function handler(req, res) {
     const { verificationToken } = await registerUseCase.execute({ username, password, name: nome, email });
     await emailService.sendActivationEmail(email, verificationToken);
     return res.status(200).json({ message: 'Registrado com sucesso. Enviamos um e-mail para ativação da conta' });
-  } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
-    return res.status(400).json({ message: error.message });
+  } catch(err) {
+    console.error('Erro ao registrar usuário:', err);
+    return res.status(400).json({ message: String(err) });
   }
 }

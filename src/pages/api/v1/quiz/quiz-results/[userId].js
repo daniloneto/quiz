@@ -19,10 +19,10 @@ export default async function handler(req, res) {
     try {
       const results = await getResultsUseCase.execute({ userId });
       return res.status(200).json(results);
-    } catch (error) {
-      console.error('Erro ao obter resultados dos quizzes:', error);
-      if (error.message === 'Nenhum resultado encontrado para este usuário.') {
-        return res.status(404).json({ message: error.message });
+    } catch(err) {
+      console.error('Erro ao obter resultados dos quizzes:', err);
+      if (String(err) === 'Error: Nenhum resultado encontrado para este usuário.') {
+        return res.status(404).json({ message: String(err) });
       }
       return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
