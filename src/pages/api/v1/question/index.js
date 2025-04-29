@@ -6,8 +6,15 @@ import MongoExamRepository from '../../../../infrastructure/database/MongoExamRe
 import Option from '../../../../domain/entities/Option';
 import Question from '../../../../domain/entities/Question';
 import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
+import { apiLimiter } from '../../../../lib/rateLimiter';
 
 export default async function handler(req, res) {
+  // Rate limit
+  const key = req.headers['x-api-key'] || req.socket.remoteAddress;
+  const { success } = await apiLimiter.limit(key);
+  if (!success) {
+    return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+  }
   if (!verifyApiKey(req, res)) return;
   if (!authenticateToken(req, res)) return;
   const db = await connectToDatabase();

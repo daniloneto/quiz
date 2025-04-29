@@ -3,11 +3,18 @@ import UpdatePointsUseCase from '../../../../application/usecases/UpdatePointsUs
 import MongoProfileRepository from '../../../../infrastructure/database/MongoProfileRepository';
 import LevelCalculatorService from '../../../../domain/services/LevelCalculatorService';
 import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
+import { apiLimiter } from '../../../../lib/rateLimiter';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+  // Rate limit
+  const key = req.headers['x-api-key'] || req.socket.remoteAddress;
+  const { success } = await apiLimiter.limit(key);
+  if (!success) {
+    return res.status(429).json({ message: 'Too many requests. Please try again later.' });
   }
   if (!verifyApiKey(req, res)) return;
   if (!authenticateToken(req, res)) return;
