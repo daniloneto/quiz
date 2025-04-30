@@ -16,18 +16,15 @@ module.exports = {
       statements: 70
     }
   },
-  testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   verbose: true,
   
   // Add transformers for JavaScript files
   transform: {
-    '^.+\\.(js|jsx)$': ['babel-jest', {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {
       presets: [
-        ['@babel/preset-env', {
-          targets: {
-            node: 'current'
-          }
-        }]
+        ['@babel/preset-env', { targets: { node: 'current' } }],
+        '@babel/preset-typescript'
       ]
     }]
   },
@@ -38,7 +35,7 @@ module.exports = {
   ],
   
   // Supported file extensions
-  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
 
   // Ignore coverage paths
   coveragePathIgnorePatterns: [
