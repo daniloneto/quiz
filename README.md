@@ -1,7 +1,5 @@
 # QuizGPT
 
-![diagram](https://github.com/user-attachments/assets/9605208c-cc20-4c38-a985-3536a8e9e7b8)
-
 Uma aplicação para geração automática de quizzes via OpenAI GPT e gerenciamento de usuários.
 
 ## Funcionalidades
@@ -82,6 +80,9 @@ Resposta:
   "uid": "..."
 }
 ```
+
+![diagram](https://github.com/user-attachments/assets/9605208c-cc20-4c38-a985-3536a8e9e7b8)
+
 
 ### Geração de Quiz
 
