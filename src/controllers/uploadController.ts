@@ -1,6 +1,7 @@
- 
 import openai from '../config/openaiConfig';
 import logger from '../config/logger';
+import { geminiModel } from '../config/geminiConfig';
+import 'dotenv/config'; // Ensure dotenv is loaded
 
 const TOKEN_LIMIT = 3000;  // Aproximadamente 3000 tokens para cada requisição
 
@@ -55,34 +56,35 @@ const uploadController = {
         const file = req.files.file;
         const content = file.data.toString('utf-8');
         const chunks = splitContent(content);
-        logger.info(`chunks size: ${chunks.length}, numQuestions: ${numQuestions}`);    
-        const results = await Promise.all(chunks.map(async (chunk) => {
-          const prompt = `Você deve gerar exatamente ${numQuestions} perguntas e, para cada uma delas, 4 opções de resposta. 
-A resposta deve estar no seguinte formato JSON:
-{
-  "questions": [
-    {
-      "question": "Texto da pergunta",
-      "options": [
-        {"text": "Opção 1", "correct": true/false},
-        {"text": "Opção 2", "correct": true/false},
-        {"text": "Opção 3", "correct": true/false},
-        {"text": "Opção 4", "correct": true/false}
-      ]
-    }
-  ]
-}
-- Apenas uma das opções por pergunta deve ser marcada como "correct": true.
-- Todos os textos devem ser escapados corretamente para evitar problemas de caracteres.
-- Use o seguinte conteúdo para gerar as perguntas em ${lingua}: ${chunk}
+        logger.info(`chunks size: ${chunks.length}, numQuestions: ${numQuestions}`);        const results = await Promise.all(chunks.map(async (chunk) => {
+          const fullPrompt = `Crie ${numQuestions} perguntas em ${lingua} sobre o texto abaixo, cada uma com 4 opções (apenas 1 correta).
+Resposta em JSON: {"questions":[{"question":"Pergunta","options":[{"text":"Opção","correct":boolean},...]},...]}
+Conteúdo: ${chunk}
           `;
-          const response = await openai.chat.completions.create({
-            messages: [{ role: 'user', content: prompt }],
-            model: 'gpt-4o',
-            max_completion_tokens: TOKEN_LIMIT,
-          });    
-          const jsonResponse = response.choices[0].message.content.replace(/```json|```/g, '').trim();      
-          return jsonResponse;
+
+          let jsonResponseString;
+
+          if (process.env.LLM_PROVIDER === 'gemini') {
+            logger.info('Using Gemini LLM');
+            const result = await geminiModel.generateContent({
+              contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+              generationConfig: {
+                responseMimeType: 'application/json',
+              },
+            });
+            const response = await result.response;
+            jsonResponseString = response.text(); // Gemini should now return clean JSON
+          } else { // Default to OpenAI
+            logger.info('Using OpenAI LLM');
+            const openAIResponse = await openai.chat.completions.create({
+              messages: [{ role: 'user', content: fullPrompt }],
+              model: 'gpt-4o', // Ou o modelo que estava sendo usado antes, ex: 'gpt-3.5-turbo'
+              response_format: { type: "json_object" }, // Se necessário, ajuste conforme a API da OpenAI
+            });
+            jsonResponseString = openAIResponse.choices[0].message.content?.replace(/```json|```/g, '').trim() || '{}';
+          }
+          
+          return jsonResponseString;
         })); 
 
         const perguntasCombinadas = {
