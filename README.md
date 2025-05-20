@@ -81,6 +81,9 @@ Resposta:
 }
 ```
 
+![diagram](https://github.com/user-attachments/assets/9605208c-cc20-4c38-a985-3536a8e9e7b8)
+
+
 ### Geração de Quiz
 
 POST `/api/v1/upload/gpt-integration`  
