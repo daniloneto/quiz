@@ -1,8 +1,7 @@
 import QuizResultRepository from '../../domain/repositories/QuizResultRepository';
 import ExamRepository from '../../domain/repositories/ExamRepository';
 import { UserAnswer } from '../../domain/entities/UserAnswer';
-import { IQuestionParams, QuestionType } from '../../domain/entities/Question'; // Assuming QuestionType is exported here
-import { IOptionParams } from '../../domain/entities/Option';
+import { IQuestionParams } from '../../domain/entities/Question';
 
 interface SaveQuizResultUseCaseConstructorParams {
   quizResultRepository: QuizResultRepository;
@@ -30,10 +29,9 @@ class SaveQuizResultUseCase {
 
   /**
    * Execute the save or update of a quiz result.
-   */
-  async execute({ userId, examId, quizIndex, answers }: SaveQuizResultUseCaseExecuteParams): Promise<{ upserted: boolean; resultId: string | null }> {
+   */  async execute({ userId, examId, quizIndex, answers }: SaveQuizResultUseCaseExecuteParams): Promise<{ upserted: boolean; resultId: string | null }> {
     if (!userId || !examId || quizIndex === undefined || !answers) {
-      throw new Error('User ID, Exam ID, Quiz Index, and Answers are required.');
+      throw new Error('Todos os campos são obrigatórios.');
     }
 
     const questions: IQuestionParams[] = await this.examRepository.findQuizQuestions(examId, quizIndex);

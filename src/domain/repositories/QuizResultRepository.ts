@@ -30,7 +30,7 @@ export default class QuizResultRepository {
   /**
    * Save a quiz result.
    */
-  async saveQuizResult(params: IQuizResultParams): Promise<ISaveQuizResultResult> {
+  async saveQuizResult(_params: IQuizResultParams): Promise<ISaveQuizResultResult> {
     throw new Error('Method not implemented.');
   }
 
@@ -42,7 +42,7 @@ export default class QuizResultRepository {
   /**
    * Find results by user ID.
    */
-  async findResultsByUser(userId: string): Promise<any[]> {
+  async findResultsByUser(_userId: string): Promise<any[]> {
     throw new Error('Method not implemented.');
   }
 }

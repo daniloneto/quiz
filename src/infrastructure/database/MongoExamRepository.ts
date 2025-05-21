@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import ExamRepository from '../../domain/repositories/ExamRepository';
+import { IQuestionParams } from '../../domain/entities/Question';
 
 /**
  * MongoDB implementation of ExamRepository.
@@ -157,15 +158,9 @@ class MongoExamRepository extends ExamRepository {
       { 
         $set: { 
           [`quizzes.${quizIndex}.questions`]: questions 
-        } 
-      }
+        }      }
     );
     
-import { IQuestionParams } from '../../domain/entities/Question'; // Added import
-// ... other imports like ObjectId and ExamRepository should be there already
-
-// ... (rest of the class)
-
     return result.modifiedCount > 0;
   }
 

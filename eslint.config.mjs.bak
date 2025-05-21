@@ -4,12 +4,30 @@ import { defineConfig } from "eslint/config";
 import unusedImports from "eslint-plugin-unused-imports";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import nextPlugin from "@next/eslint-plugin-next";
 
 export default defineConfig([
   // Ignore build and dependency directories
-  { ignores: ["**/.next/**", "**/node_modules/**", "**/coverage/**"] },
+  { ignores: ["**/.next/**", "**/node_modules/**", "**/coverage/**", "**/.eslintrc.js"] },
   { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+  // Add Next.js rules
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      next: nextPlugin
+    },
+    settings: {
+      next: {
+        rootDir: ".",
+      },
+    },
+    rules: Object.assign(
+      {},
+      nextPlugin.configs.recommended.rules,
+      nextPlugin.configs["core-web-vitals"].rules
+    )
+  },
   {
     files: ["**/*.{js,mjs,cjs}"],
     plugins: { "unused-imports": unusedImports },

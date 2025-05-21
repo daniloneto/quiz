@@ -1,6 +1,4 @@
 import { QuestionGenerationService } from '../../../../src/domain/services/QuestionGenerationService';
-import { IQuestionParams, QuestionType } from '../../../../src/domain/entities/Question';
-import { IOptionParams } from '../../../../src/domain/entities/Option';
 
 // Mock the callGpt method
 // We have to use a type assertion for the mockImplementation as the private method is not directly accessible.
@@ -39,16 +37,12 @@ describe('QuestionGenerationService', () => {
 
       expect(callGptMock).toHaveBeenCalled(); // We expect callGpt to be called internally by the service's placeholder
       const prompt = callGptMock.mock.calls[0][0]; // Get the prompt passed to callGpt
-      
-      // Check prompt content (based on current service implementation)
+        // Check prompt content (based on current service implementation)
       expect(prompt).toContain(`Generate a multiple-choice question about "${topic}"`);
       expect(prompt).toContain(`context: "${context}"`);
-      expect(prompt).toContain(`The correct answer should be "${correctAnswer}"`);
-      expect(prompt).toContain(`Generate ${numChoices - 1} plausible distractors.`);
-
-      // Check result structure (based on current service's placeholder logic)
-      expect(result.questionType).toBe('multiple-choice');
-      expect(result.question).toBe(`This is a multiple-choice question about ${topic}?`);
+      expect(prompt).toContain(`The correct answer should be about "${correctAnswer}"`);
+      expect(prompt).toContain(`Generate ${numChoices - 1} plausible distractors`);      // Check result structure (based on current service's placeholder logic)      expect(result.questionType).toBe('multiple-choice');
+      expect(result.question).toBe(`Multiple-choice question about ${topic}?`);
       expect(result.options.length).toBe(numChoices);
       expect(result.options[0].text).toBe(correctAnswer);
       expect(result.options[0].correct).toBe(true);

@@ -1,11 +1,8 @@
 import { connectToDatabase } from '../../../../config/database';
 import AddQuestionUseCase from '../../../../application/usecases/AddQuestionUseCase';
-import UpdateQuestionUseCase from '../../../../application/usecases/UpdateQuestionUseCase';
-import DeleteQuestionUseCase from '../../../../application/usecases/DeleteQuestionUseCase';
 import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
 // Option and Question are used by other methods (PUT, DELETE), keep them for now.
 // IOptionParams and QuestionType will be used for the POST request body.
-import { IOptionParams, QuestionType } from '../../../../domain/entities/Question'; 
 import { QuestionGenerationService } from '../../../../domain/services/QuestionGenerationService';
 import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
 import { apiLimiter } from '../../../../lib/rateLimiter';

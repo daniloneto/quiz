@@ -2,8 +2,6 @@
    * Find a user by username.
    * @param {string} username
    */
-import { IUserParams } from '../entities/User';
-import { IProfileParams } from '../entities/Profile';
 
 /**
  * Abstract repository for authentication operations.

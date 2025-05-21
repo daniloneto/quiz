@@ -2,8 +2,7 @@ import SaveQuizResultUseCase from '../../../../src/application/usecases/SaveQuiz
 import MongoExamRepository from '../../../../src/infrastructure/database/MongoExamRepository';
 import MongoQuizResultRepository from '../../../../src/infrastructure/database/MongoQuizResultRepository';
 import { UserAnswer } from '../../../../src/domain/entities/UserAnswer';
-import { IQuestionParams, QuestionType } from '../../../../src/domain/entities/Question';
-import { IOptionParams } from '../../../../src/domain/entities/Option';
+import { IQuestionParams } from '../../../../src/domain/entities/Question';
 
 // Mock dependencies
 jest.mock('../../../../src/infrastructure/database/MongoExamRepository');
@@ -162,30 +161,29 @@ describe('SaveQuizResultUseCase', () => {
       });
     });
   });
-
   describe('Error Handling', () => {
     it('should throw an error if userId is missing', async () => {
       await expect(
         saveQuizResultUseCase.execute({ userId: undefined as any, examId, quizIndex, answers: [] })
-      ).rejects.toThrow('User ID, Exam ID, Quiz Index, and Answers are required.');
+      ).rejects.toThrow('Todos os campos são obrigatórios.');
     });
 
     it('should throw an error if examId is missing', async () => {
       await expect(
         saveQuizResultUseCase.execute({ userId, examId: undefined as any, quizIndex, answers: [] })
-      ).rejects.toThrow('User ID, Exam ID, Quiz Index, and Answers are required.');
+      ).rejects.toThrow('Todos os campos são obrigatórios.');
     });
     
     it('should throw an error if quizIndex is missing', async () => {
         await expect(
           saveQuizResultUseCase.execute({ userId, examId, quizIndex: undefined as any, answers: [] })
-        ).rejects.toThrow('User ID, Exam ID, Quiz Index, and Answers are required.');
+        ).rejects.toThrow('Todos os campos são obrigatórios.');
       });
 
     it('should throw an error if answers array is missing', async () => {
       await expect(
         saveQuizResultUseCase.execute({ userId, examId, quizIndex, answers: undefined as any })
-      ).rejects.toThrow('User ID, Exam ID, Quiz Index, and Answers are required.');
+      ).rejects.toThrow('Todos os campos são obrigatórios.');
     });
 
     it('should propagate error if examRepository.findQuizQuestions throws', async () => {

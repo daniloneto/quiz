@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import logger from '../config/logger';
-import openai from '../config/openaiConfig';
+import { openaiConfig } from '../config/openaiConfig';
 import { geminiModel } from '../config/geminiConfig';
 import 'dotenv/config';
 
@@ -113,8 +113,7 @@ ${chunk}`;
     let jsonResponseString = '';
     
     try {
-      if (process.env.LLM_PROVIDER === 'gemini') {
-        logger.info('Using Gemini LLM');
+      if (process.env.LLM_PROVIDER === 'gemini') {        logger.info('Using Gemini LLM');
         const result = await geminiModel.generateContent({
           contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
           generationConfig: {
@@ -126,7 +125,10 @@ ${chunk}`;
         jsonResponseString = response.text(); // Gemini should now return clean JSON
       } else { // Default to OpenAI
         logger.info('Using OpenAI LLM');
-        const openAIResponse = await openai.chat.completions.create({
+        if (!openaiConfig.client) {
+          throw new Error("OpenAI client is not initialized");
+        }
+        const openAIResponse = await openaiConfig.client.chat.completions.create({
           messages: [{ role: 'user', content: fullPrompt }],
           model: 'gpt-4o',
           response_format: { type: "json_object" },
@@ -146,14 +148,16 @@ ${chunk}`;
         logger.info('Retrying with simplified prompt...');
         const simplePrompt = `Crie ${numQuestions} perguntas sobre o texto. Cada uma com 4 opções (apenas 1 correta). Resposta apenas em JSON: {"questions":[{"question":"Pergunta","options":[{"text":"Opção","correct":boolean},...]},...]}`;
         
-        if (process.env.LLM_PROVIDER === 'gemini') {
-          const result = await geminiModel.generateContent({
+        if (process.env.LLM_PROVIDER === 'gemini') {          const result = await geminiModel.generateContent({
             contents: [{ role: 'user', parts: [{ text: simplePrompt }] }],
             generationConfig: { responseMimeType: 'application/json' },
           });
           jsonResponseString = result.response.text();
         } else {
-          const openAIResponse = await openai.chat.completions.create({
+          if (!openaiConfig.client) {
+            throw new Error("OpenAI client is not initialized");
+          }
+          const openAIResponse = await openaiConfig.client.chat.completions.create({
             messages: [{ role: 'user', content: simplePrompt }],
             model: 'gpt-3.5-turbo', // Modelo mais rápido como fallback
             response_format: { type: "json_object" },
