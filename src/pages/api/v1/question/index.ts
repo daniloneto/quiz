@@ -1,10 +1,9 @@
 import { connectToDatabase } from '../../../../config/database';
 import AddQuestionUseCase from '../../../../application/usecases/AddQuestionUseCase';
-import UpdateQuestionUseCase from '../../../../application/usecases/UpdateQuestionUseCase';
-import DeleteQuestionUseCase from '../../../../application/usecases/DeleteQuestionUseCase';
 import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
-import Option from '../../../../domain/entities/Option';
-import Question from '../../../../domain/entities/Question';
+// Option and Question are used by other methods (PUT, DELETE), keep them for now.
+// IOptionParams and QuestionType will be used for the POST request body.
+import { QuestionGenerationService } from '../../../../domain/services/QuestionGenerationService';
 import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
 import { apiLimiter } from '../../../../lib/rateLimiter';
 
@@ -19,28 +18,50 @@ export default async function handler(req, res) {
   if (!authenticateToken(req, res)) return;
   const db = await connectToDatabase();
   const repository = new MongoExamRepository(db);
+  const questionGenerationService = new QuestionGenerationService(); // Assuming default constructor
+
   switch (req.method) {
     case 'POST': {
-      const { exam, quiz, question: questionText, optionA, optionB, optionC, optionD, correctOption } = req.body;
-      const options = [
-        new Option({ text: optionA, correct: correctOption === 'A' }),
-        new Option({ text: optionB, correct: correctOption === 'B' }),
-        new Option({ text: optionC, correct: correctOption === 'C' }),
-        new Option({ text: optionD, correct: correctOption === 'D' })
-      ];
-      const questionEntity = new Question({ question: questionText, options });
-      const useCase = new AddQuestionUseCase({ examRepository: repository });
+      const { 
+        examTitle, 
+        quizTitle, 
+        questionType, 
+        topic, 
+        context, 
+        questionText, 
+        options, // Expects IOptionParams[]
+        correctAnswer, 
+        numChoices 
+      } = req.body;
+
+      const useCase = new AddQuestionUseCase({ examRepository: repository, questionGenerationService });
+      
       try {
-        await useCase.execute({ examTitle: exam, quizTitle: quiz, questionEntity });
-        return res.status(200).json({ message: 'Pergunta adicionada com sucesso' });
+        await useCase.execute({
+          examTitle,
+          quizTitle,
+          questionType,
+          topic,
+          context,
+          questionText,
+          options,
+          correctAnswer,
+          numChoices
+        });
+        return res.status(201).json({ message: 'Question added successfully.' }); // Changed to 201 for resource creation
       } catch(err) {
-        console.error('Erro ao adicionar a pergunta:', err);
-        const status = String(err) === 'Error: Falha ao adicionar a pergunta.' ? 400 : 404;
-        return res.status(status).json({ message: String(err) });
+        console.error('Error adding question:', err);
+        // Improved error message handling, specific messages come from the use case
+        return res.status(400).json({ message: err.message || 'Failed to add question.' });
       }
     }
     case 'PUT': {
+      // Ensure Option and Question are available if UpdateQuestionUseCase or DeleteQuestionUseCase need them
+      // For now, assuming they operate on plain objects or IDs as per current file structure
       const { examId, quizIndex, questionIndex, optionIndex, newValue } = req.body;
+      // Potentially import Option and Question from domain entities if needed by use cases directly
+      // For now, the use cases seem to handle data transformation or expect simple types
+      const UpdateQuestionUseCase = (await import('../../../../application/usecases/UpdateQuestionUseCase')).default;
       const useCase = new UpdateQuestionUseCase({ examRepository: repository });
       try {
         await useCase.execute({ examId, quizIndex, questionIndex, optionIndex, newValue });
@@ -54,6 +75,7 @@ export default async function handler(req, res) {
     }
     case 'DELETE': {
       const { examId, quizIndex, questionIndex } = req.body;
+      const DeleteQuestionUseCase = (await import('../../../../application/usecases/DeleteQuestionUseCase')).default;
       const useCase = new DeleteQuestionUseCase({ examRepository: repository });
       try {
         await useCase.execute({ examId, quizIndex, questionIndex });

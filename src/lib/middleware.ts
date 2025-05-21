@@ -27,7 +27,7 @@ export function authenticateToken(req: any, res: any): boolean {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
     req.user = decoded;
     return true;
-  } catch (err) {
+  } catch {
     res.status(403).json({ message: 'Token inválido ou expirado' });
     return false;
   }

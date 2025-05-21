@@ -1,4 +1,4 @@
-import openai from '../config/openaiConfig';
+import { openaiConfig } from '../config/openaiConfig';
 import logger from '../config/logger';
 import { geminiModel } from '../config/geminiConfig';
 import 'dotenv/config'; // Ensure dotenv is loaded
@@ -70,13 +70,15 @@ Conteúdo: ${chunk}
               contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
               generationConfig: {
                 responseMimeType: 'application/json',
-              },
-            });
+              },            });
             const response = await result.response;
             jsonResponseString = response.text(); // Gemini should now return clean JSON
           } else { // Default to OpenAI
             logger.info('Using OpenAI LLM');
-            const openAIResponse = await openai.chat.completions.create({
+            if (!openaiConfig.client) {
+              throw new Error("OpenAI client is not initialized");
+            }
+            const openAIResponse = await openaiConfig.client.chat.completions.create({
               messages: [{ role: 'user', content: fullPrompt }],
               model: 'gpt-4o', // Ou o modelo que estava sendo usado antes, ex: 'gpt-3.5-turbo'
               response_format: { type: "json_object" }, // Se necessário, ajuste conforme a API da OpenAI
