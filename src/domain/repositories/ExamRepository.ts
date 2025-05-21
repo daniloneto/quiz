@@ -1,4 +1,5 @@
 import { IExamParams } from '../entities/Exam';
+import { IQuestionParams } from '../entities/Question';
 
 /**
  * Abstract repository for exam operations.
@@ -71,10 +72,10 @@ export default class ExamRepository {
    * Add a question to a specific quiz within an exam.
    * @param {string} examTitle
    * @param {string} quizTitle
-   * @param {object} questionEntity
+   * @param {IQuestionParams} questionEntity
    * @returns {Promise<boolean>} True if added
    */
-  async addQuestionToQuiz(examTitle: string, quizTitle: string, questionEntity: any): Promise<boolean> {
+  async addQuestionToQuiz(examTitle: string, quizTitle: string, questionEntity: IQuestionParams): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
@@ -83,10 +84,10 @@ export default class ExamRepository {
    * @param {string} examId
    * @param {number} quizIndex
    * @param {number} questionIndex
-   * @param {object} questionEntity
+   * @param {IQuestionParams} questionEntity
    * @returns {Promise<boolean>} True if updated
    */
-  async updateQuestionInQuiz(examId: string, quizIndex: number, questionIndex: number, questionEntity: any): Promise<boolean> {
+  async updateQuestionInQuiz(examId: string, quizIndex: number, questionIndex: number, questionEntity: IQuestionParams): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
@@ -107,6 +108,16 @@ export default class ExamRepository {
    * @returns {Promise<boolean>} True if deleted, false otherwise
    */
   async deleteExam(id: string): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Find a specific quiz's questions within an exam.
+   * @param {string} examId
+   * @param {number} quizIndex
+   * @returns {Promise<IQuestionParams[]>} Array of questions for the specified quiz
+   */
+  async findQuizQuestions(examId: string, quizIndex: number): Promise<IQuestionParams[]> {
     throw new Error('Method not implemented.');
   }
 }

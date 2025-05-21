@@ -161,7 +161,34 @@ class MongoExamRepository extends ExamRepository {
       }
     );
     
+import { IQuestionParams } from '../../domain/entities/Question'; // Added import
+// ... other imports like ObjectId and ExamRepository should be there already
+
+// ... (rest of the class)
+
     return result.modifiedCount > 0;
+  }
+
+  async findQuizQuestions(examId: string, quizIndex: number): Promise<IQuestionParams[]> {
+    const exam = await this.collection.findOne({ _id: new ObjectId(examId) });
+
+    if (!exam || !exam.quizzes || !exam.quizzes[quizIndex] || !exam.quizzes[quizIndex].questions) {
+      // Consider throwing an error if exam or quiz not found, or returning empty if that's acceptable
+      console.warn(`Quiz not found for examId: ${examId}, quizIndex: ${quizIndex}`);
+      return [];
+    }
+
+    const questions = exam.quizzes[quizIndex].questions;
+
+    // Questions are stored as plain objects from IQuestionParams.
+    // The 'id' field should be present as it's part of IQuestionParams and set by Question entity.
+    return questions.map(q => ({
+      id: q.id, // Ensure this 'id' field exists and is correctly populated
+      question: q.question,
+      options: q.options.map(opt => ({ text: opt.text, correct: opt.correct })),
+      questionType: q.questionType,
+      answerKey: q.answerKey,
+    } as IQuestionParams)); // Cast to IQuestionParams for type safety
   }
 }
 
