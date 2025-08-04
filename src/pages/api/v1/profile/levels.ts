@@ -1,10 +1,15 @@
 import { connectToDatabase } from '../../../../config/database';
 import GetLevelsUseCase from '../../../../application/usecases/GetLevelsUseCase';
 import MongoProfileRepository from '../../../../infrastructure/database/MongoProfileRepository';
-import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
+import { verifyApiKey, authenticateToken, handleCors } from '../../../../lib/middleware';
 import { apiLimiter } from '../../../../lib/rateLimiter';
 
 export default async function handler(req, res) {
+  // Handle CORS
+  if (handleCors(req, res)) {
+    return; // If it was an OPTIONS request, it's already handled
+  }
+
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);

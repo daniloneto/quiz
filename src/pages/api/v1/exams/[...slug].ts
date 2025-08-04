@@ -2,10 +2,15 @@ import { connectToDatabase } from '../../../../config/database';
 import DeleteExamUseCase from '../../../../application/usecases/DeleteExamUseCase';
 import GetQuizByIndexUseCase from '../../../../application/usecases/GetQuizByIndexUseCase';
 import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
-import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
+import { verifyApiKey, authenticateToken, handleCors } from '../../../../lib/middleware';
 import { apiLimiter } from '../../../../lib/rateLimiter';
 
 export default async function handler(req, res) {
+  // Handle CORS
+  if (handleCors(req, res)) {
+    return; // If it was an OPTIONS request, it's already handled
+  }
+
   // Rate limit
   const key = req.headers['x-api-key'] || req.socket.remoteAddress;
   const { success } = await apiLimiter.limit(key);

@@ -5,10 +5,15 @@ import DeleteQuestionUseCase from '../../../../application/usecases/DeleteQuesti
 import MongoExamRepository from '../../../../infrastructure/database/MongoExamRepository';
 import Option from '../../../../domain/entities/Option';
 import Question from '../../../../domain/entities/Question';
-import { verifyApiKey, authenticateToken } from '../../../../lib/middleware';
+import { verifyApiKey, authenticateToken, handleCors } from '../../../../lib/middleware';
 import { apiLimiter } from '../../../../lib/rateLimiter';
 
 export default async function handler(req, res) {
+  // Handle CORS
+  if (handleCors(req, res)) {
+    return; // If it was an OPTIONS request, it's already handled
+  }
+
   // Rate limit
   const key = req.headers['x-api-key'] || req.socket.remoteAddress;
   const { success } = await apiLimiter.limit(key);

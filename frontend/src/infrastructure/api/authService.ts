@@ -4,6 +4,7 @@ import type { User } from 'src/domain/user';
 export interface LoginPayload {
   username: string;
   password: string;
+  loginType: string;
 }
 
 export interface RegisterPayload {

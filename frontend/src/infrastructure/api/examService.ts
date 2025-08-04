@@ -2,8 +2,10 @@ import api from './http';
 import type { Exam } from 'src/domain/exam';
 
 export interface ExamsResponse {
-  items: Exam[];
+  exams: Exam[];
   total: number;
+  page: number;
+  totalPages: number;
 }
 
 export async function fetchExams(page = 1, limit = 10): Promise<ExamsResponse> {

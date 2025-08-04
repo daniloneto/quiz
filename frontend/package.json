@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Front-end portal for exams and quizzes",
   "productName": "Quiz Portal",
-  "author": "Codex <codex@openai.com>",
+  "author": "Danilo Neto",
   "type": "module",
   "private": true,
   "scripts": {

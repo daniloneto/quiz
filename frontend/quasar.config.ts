@@ -75,12 +75,12 @@ export default defineConfig((/* ctx */) => {
           { server: false },
         ],
       ],
-    },
-
-    // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
+    },    // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
       // https: true,
-      open: true, // opens browser window automatically
+      open: false, // don't open browser automatically in Docker
+      host: '0.0.0.0', // allow connections from any host
+      port: 9000,
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework

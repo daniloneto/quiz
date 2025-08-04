@@ -3,13 +3,17 @@ import LoginUserUseCase from '../../../../application/usecases/LoginUserUseCase'
 import MongoAuthRepository from '../../../../infrastructure/database/MongoAuthRepository';
 import Argon2PasswordService from '../../../../infrastructure/services/Argon2PasswordService';
 import JwtService from '../../../../infrastructure/services/JwtService';
-import { verifyApiKey } from '../../../../lib/middleware';
+import { verifyApiKey, handleCors } from '../../../../lib/middleware';
 import { authLimiter } from '../../../../lib/rateLimiter';
 import { loginSchema } from '../../../../lib/validators';
 import logger from '../../../../config/logger';
 
 
+
 export default async function handler(req, res) {
+  // Handle CORS
+  if (handleCors(req, res)) return;
+  
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);

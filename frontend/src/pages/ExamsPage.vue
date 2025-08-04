@@ -12,15 +12,19 @@ import type { Exam } from 'src/domain/exam';
 const exams = ref<Exam[]>([]);
 const columns = [
   { name: 'title', label: 'Título', field: 'title' },
-  { name: 'quizzesCount', label: 'Quizzes', field: 'quizzesCount' },
+  { 
+    name: 'quizzesCount', 
+    label: 'Quizzes', 
+    field: (row: Exam) => row.quizzes?.length || 0 
+  },
 ];
 
 onMounted(async () => {
   try {
     const data = await fetchExams();
-    exams.value = data.items;
+    exams.value = data.exams; // Now backend returns { exams: [], total, page, totalPages }
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching exams:', err);
   }
 });
 </script>
