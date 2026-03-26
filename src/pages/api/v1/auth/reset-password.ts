@@ -4,8 +4,12 @@ import MongoAuthRepository from '../../../../infrastructure/database/MongoAuthRe
 import Argon2PasswordService from '../../../../infrastructure/services/Argon2PasswordService';
 import { resetLimiter } from '../../../../lib/rateLimiter';
 import { resetPasswordSchema } from '../../../../lib/validators';
+import { handleCors } from '../../../../lib/middleware';
 
 export default async function handler(req, res) {
+  // Handle CORS
+  if (!handleCors(req, res)) return;
+  
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
