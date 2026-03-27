@@ -23,7 +23,7 @@ export function CockpitPage() {
   });
 
   const examCount = examsQuery.data?.total || 0;
-  const quizCount = examsQuery.data?.exams.reduce((acc, exam) => acc + (exam.quizzes?.length || 0), 0) || 0;
+  const quizCount = examsQuery.data?.totalQuizzes || 0;
 
   return (
     <Stack gap="lg">

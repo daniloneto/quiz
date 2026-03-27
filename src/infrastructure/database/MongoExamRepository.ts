@@ -57,6 +57,11 @@ class MongoExamRepository extends ExamRepository {
     return this.collection.countDocuments();
   }
 
+  async countQuizzes() {
+    const docs = await this.collection.find({}, { projection: { quizzes: 1 } }).toArray();
+    return docs.reduce((total, doc) => total + (Array.isArray(doc.quizzes) ? doc.quizzes.length : 0), 0);
+  }
+
   async findExamByTitle(title) {
     const doc = await this.collection.findOne({ title });
     if (!doc) return null;

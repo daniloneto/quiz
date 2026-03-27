@@ -15,10 +15,14 @@ type FormData = z.infer<typeof schema>;
 
 export function ForgotPasswordPage() {
   const form = useForm<FormData>({ resolver: zodResolver(schema) });
+
   const mutation = useMutation({
     mutationFn: api.forgotPassword,
     onSuccess: (data) => notifications.show({ color: 'teal', message: data.message || 'Solicitação enviada' }),
-    onError: (error: Error) => notifications.show({ color: 'red', message: error.message })
+    onError: (error: Error) => {
+      console.error('Forgot password request failed:', error);
+      notifications.show({ color: 'red', message: 'Ocorreu um erro ao enviar a solicitação.' });
+    }
   });
 
   return (

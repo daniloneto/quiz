@@ -8,10 +8,14 @@ import { api } from '../../lib/api';
 export function ConfirmEmailPage() {
   const [params] = useSearchParams();
   const token = params.get('token') || '';
+
   const mutation = useMutation({
     mutationFn: () => api.confirmEmail(token),
     onSuccess: (data) => notifications.show({ color: 'teal', message: data.message || 'Conta confirmada' }),
-    onError: (error: Error) => notifications.show({ color: 'red', message: error.message })
+    onError: (error: Error) => {
+      console.error('Confirm email failed:', error);
+      notifications.show({ color: 'red', message: 'Erro ao confirmar conta. Tente novamente.' });
+    }
   });
 
   return (

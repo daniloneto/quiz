@@ -26,6 +26,13 @@ class EmailService {
     await this.sendEmail({ to: email, subject, htmlBody });
   }
 
+  private maskEmail(email: string): string {
+    const [localPart = '', domain = ''] = email.split('@');
+    if (!localPart || !domain) return '[redacted]';
+    const visible = localPart.slice(0, 2);
+    return `${visible}${'*'.repeat(Math.max(localPart.length - visible.length, 1))}@${domain}`;
+  }
+
   private async sendEmail({ to, subject, htmlBody }: { to: string; subject: string; htmlBody: string }): Promise<void> {
     const command = new SendEmailCommand({
       Source: this.fromAddress,
@@ -38,9 +45,9 @@ class EmailService {
 
     try {
       const result = await this.ses.send(command);
-      logger.info(`Email sent via SES to ${to}. MessageId=${result.MessageId}`);
+      logger.info(`Email sent via SES to ${this.maskEmail(to)}. MessageId=${result.MessageId}`);
     } catch (err) {
-      logger.error('Failed to send email via SES', { error: err, to, subject });
+      logger.error('Failed to send email via SES', { error: err, to: this.maskEmail(to), subject });
       throw err;
     }
   }

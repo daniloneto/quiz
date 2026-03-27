@@ -85,7 +85,11 @@ export function AppFrame() {
                 key={item.to}
                 component={Link}
                 to={item.to}
-                active={location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)}
+                active={
+                  item.to === '/'
+                    ? location.pathname === '/'
+                    : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
+                }
                 label={item.label}
                 leftSection={<item.icon size={18} />}
               />

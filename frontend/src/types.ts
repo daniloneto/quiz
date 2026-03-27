@@ -31,6 +31,7 @@ export type ExamSummary = {
 export type ExamListResponse = {
   exams: ExamSummary[];
   total: number;
+  totalQuizzes: number;
   page: number;
   totalPages: number;
 };

@@ -1,4 +1,4 @@
-import type { ExamListResponse, Level, Profile, Quiz, QuizResult, Session } from '../types';
+import type { ExamListResponse, ExamSummary, Level, Profile, Quiz, QuizResult, Session } from '../types';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -83,6 +83,8 @@ export const api = {
     request<ExamListResponse>('exams', { session, query: { page, limit } }),
   createExam: (session: Session | null, body: { title: string; description?: string }) =>
     request<{ message: string }>('exams', { method: 'POST', body, session }),
+  getExamById: (session: Session | null, id: string) =>
+    request<ExamSummary>(`exams/${id}`, { session }),
   deleteExam: (session: Session | null, id: string) =>
     request<{ message: string }>(`exams/${id}`, { method: 'DELETE', session }),
   createQuiz: (session: Session | null, body: { examTitle: string; quiz: Quiz }) =>

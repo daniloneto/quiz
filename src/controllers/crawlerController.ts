@@ -352,8 +352,8 @@ const crawlerController = {
       const allQuestions = processQuestionsResponses(chunkResponses);
       
       // Limitar ao número máximo de perguntas solicitado (multiplicado pelo número de chunks)
-      const maxQuestionsPerChunk = Math.min(numQuestions, 5); // Evitar números muito altos
-      const maxTotalQuestions = maxQuestionsPerChunk * chunks.length;
+      const maxQuestionsPerChunk = Math.ceil(numQuestions / chunks.length);
+      const maxTotalQuestions = Math.min(numQuestions, maxQuestionsPerChunk * chunks.length);
       const finalQuestions = allQuestions.slice(0, maxTotalQuestions);
         if (finalQuestions.length === 0) {
         res.status(400).json({
