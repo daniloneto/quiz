@@ -66,19 +66,13 @@ function resolveTarget(req: NextApiRequest) {
   if (segments[0] === 'quiz' && segments[1] === 'results' && segments.length === 3) {
     return {
       targetPath: `/api/v1/quiz/quiz-results/${encodeSegments([segments[2]])}`,
-      requireAuth: true
+      requireAuth: true,
+      emptyJsonOn404: true
     };
   }
 
   if (routeKey === 'quiz/save-result') {
     return { targetPath: '/api/v1/quiz/save-quiz-result', requireAuth: true };
-  }
-
-  if (segments[0] === 'profile' && segments.length === 2) {
-    return {
-      targetPath: `/api/v1/profile/id/${encodeSegments([segments[1]])}`,
-      requireAuth: true
-    };
   }
 
   if (routeKey === 'profile/levels') {
@@ -87,6 +81,13 @@ function resolveTarget(req: NextApiRequest) {
 
   if (routeKey === 'profile/update-points') {
     return { targetPath: '/api/v1/profile/atualizar-pontos', requireAuth: true };
+  }
+
+  if (segments[0] === 'profile' && segments.length === 2) {
+    return {
+      targetPath: `/api/v1/profile/id/${encodeSegments([segments[1]])}`,
+      requireAuth: true
+    };
   }
 
   if (routeKey === 'crawler') {

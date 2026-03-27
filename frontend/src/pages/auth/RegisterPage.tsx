@@ -31,7 +31,7 @@ export function RegisterPage() {
         <Stack>
           <div>
             <Title order={1}>Registrar nova conta</Title>
-            <Text c="dimmed">O backend enviará o token de ativação por e-mail.</Text>
+            <Text c="dimmed">Crie sua conta no Quizz Game Studio.</Text>
           </div>
           <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
             <Stack>

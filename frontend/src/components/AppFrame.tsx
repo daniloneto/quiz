@@ -1,31 +1,43 @@
-import { AppShell, Badge, Burger, Button, Group, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
+import { AppShell, Burger, Button, Group, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useQuery } from '@tanstack/react-query';
 import {
   IconBinaryTree2,
   IconBrain,
   IconDashboard,
   IconDeviceGamepad2,
   IconFingerprint,
-  IconLayoutKanban,
   IconLogout,
   IconShieldCheck
 } from '@tabler/icons-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { api } from '../lib/api';
 import { useSession } from '../state/session';
 
-const navItems = [
+const adminItems = [
   { to: '/', label: 'Cockpit', icon: IconDashboard },
   { to: '/studio/exams', label: 'Studio', icon: IconBinaryTree2 },
   { to: '/studio/ai', label: 'AI Lab', icon: IconBrain },
-  { to: '/playground', label: 'Playground', icon: IconDeviceGamepad2 },
-  { to: '/me', label: 'Perfil', icon: IconFingerprint },
   { to: '/studio/console', label: 'Console', icon: IconShieldCheck }
+];
+
+const sharedItems = [
+  { to: '/playground', label: 'Playground', icon: IconDeviceGamepad2 },
+  { to: '/me', label: 'Perfil', icon: IconFingerprint }
 ];
 
 export function AppFrame() {
   const [opened, { toggle }] = useDisclosure();
   const location = useLocation();
   const { logout, session } = useSession();
+  const isAdmin = session?.loginType === 'admin';
+  const profileQuery = useQuery({
+    queryKey: ['app-frame-profile', session?.uid],
+    queryFn: () => api.getProfile(session, session!.uid),
+    enabled: Boolean(session?.uid)
+  });
+
+  const navItems = isAdmin ? [...adminItems, ...sharedItems] : sharedItems;
 
   return (
     <AppShell
@@ -40,17 +52,16 @@ export function AppFrame() {
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <div>
               <Text fw={700} fz="xl" ff="Fraunces, serif">
-                Quiz Control Room
+                Plataforma Quiz
               </Text>
               <Text c="dimmed" size="sm">
-                Studio editorial + playground operacional
+                Sua plataforma de estudo gamificada
               </Text>
             </div>
           </Group>
+
           <Group>
-            <Badge color="teal" variant="light">
-              {session?.loginType || 'guest'}
-            </Badge>
+            <Text fw={600}>{profileQuery.data?.nome || 'Carregando usuário'}</Text>
             <Button variant="subtle" color="dark" leftSection={<IconLogout size={16} />} onClick={logout}>
               Sair
             </Button>
@@ -61,11 +72,8 @@ export function AppFrame() {
       <AppShell.Navbar p="md">
         <AppShell.Section>
           <Stack gap="xs">
-            <Badge color="orange" variant="dot" size="lg" leftSection={<IconLayoutKanban size={14} />}>
-              Two-mode interface
-            </Badge>
             <Text c="dimmed" size="sm">
-              Um app para operar IA, conteúdo e execução do quiz sem expor a API key ao navegador.
+              Plataforma de Quiz Game para estudo.
             </Text>
           </Stack>
         </AppShell.Section>

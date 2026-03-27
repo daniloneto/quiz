@@ -41,8 +41,8 @@ export function LoginPage() {
       <Panel className="hero-panel">
         <Stack gap="lg">
           <div>
-            <Title order={1}>Entrar no Control Room</Title>
-            <Text c="dimmed">Acesso ao Studio e ao Playground com a mesma sessão JWT.</Text>
+            <Title order={1}>Entrar no Quizz</Title>
+            <Text c="dimmed">Acesso ao Quizz Game Studio.</Text>
           </div>
 
           <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>

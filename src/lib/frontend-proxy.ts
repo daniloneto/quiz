@@ -7,6 +7,7 @@ type ProxyOptions = {
   contentType?: string | null;
   requireAuth?: boolean;
   query?: Record<string, string | string[] | undefined>;
+  emptyJsonOn404?: boolean;
 };
 
 function getBaseUrl(req: NextApiRequest) {
@@ -107,6 +108,10 @@ export async function forwardToBackend(req: NextApiRequest, res: NextApiResponse
       }),
       body
     });
+
+    if (options.emptyJsonOn404 && response.status === 404) {
+      return res.status(200).json([]);
+    }
 
     return writeProxyResponse(response, res);
   } catch (error) {

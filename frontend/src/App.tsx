@@ -1,6 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AppFrame } from './components/AppFrame';
 import { AuthGuard } from './components/AuthGuard';
+import { useSession } from './state/session';
 import { CockpitPage } from './pages/CockpitPage';
 import { ConfirmEmailPage } from './pages/auth/ConfirmEmailPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
@@ -15,6 +16,19 @@ import { ConsolePage } from './pages/studio/ConsolePage';
 import { ExamWorkbenchPage } from './pages/studio/ExamWorkbenchPage';
 import { ExamsPage } from './pages/studio/ExamsPage';
 
+function HomePage() {
+  const { session } = useSession();
+  return session?.loginType === 'admin' ? <CockpitPage /> : <Navigate to="/playground" replace />;
+}
+
+function AdminGuard() {
+  const { session } = useSession();
+  if (session?.loginType !== 'admin') {
+    return <Navigate to="/playground" replace />;
+  }
+  return <Outlet />;
+}
+
 export default function App() {
   return (
     <Routes>
@@ -26,11 +40,13 @@ export default function App() {
 
       <Route element={<AuthGuard />}>
         <Route element={<AppFrame />}>
-          <Route path="/" element={<CockpitPage />} />
-          <Route path="/studio/exams" element={<ExamsPage />} />
-          <Route path="/studio/exams/:examId" element={<ExamWorkbenchPage />} />
-          <Route path="/studio/ai" element={<AiLabPage />} />
-          <Route path="/studio/console" element={<ConsolePage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route element={<AdminGuard />}>
+            <Route path="/studio/exams" element={<ExamsPage />} />
+            <Route path="/studio/exams/:examId" element={<ExamWorkbenchPage />} />
+            <Route path="/studio/ai" element={<AiLabPage />} />
+            <Route path="/studio/console" element={<ConsolePage />} />
+          </Route>
           <Route path="/playground" element={<PlaygroundPage />} />
           <Route path="/playground/exams/:examId/quizzes/:quizIndex" element={<QuizPlayerPage />} />
           <Route path="/me" element={<ProfilePage />} />
