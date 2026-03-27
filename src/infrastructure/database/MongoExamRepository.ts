@@ -57,6 +57,11 @@ class MongoExamRepository extends ExamRepository {
     return this.collection.countDocuments();
   }
 
+  async countQuizzes() {
+    const docs = await this.collection.find({}, { projection: { quizzes: 1 } }).toArray();
+    return docs.reduce((total, doc) => total + (Array.isArray(doc.quizzes) ? doc.quizzes.length : 0), 0);
+  }
+
   async findExamByTitle(title) {
     const doc = await this.collection.findOne({ title });
     if (!doc) return null;
@@ -133,10 +138,12 @@ class MongoExamRepository extends ExamRepository {
    * Update a question within a quiz for a given exam.
    */
   async updateQuestionInQuiz(examId, quizIndex, questionIndex, questionEntity) {
-    const filter = { _id: new ObjectId(examId) };
+    // Ensure the specific question exists; consider success if matched even when value unchanged
+    const filter: any = { _id: new ObjectId(examId), [`quizzes.${quizIndex}.questions.${questionIndex}`]: { $exists: true } };
     const update = { $set: { [`quizzes.${quizIndex}.questions.${questionIndex}`]: questionEntity } };
     const result = await this.collection.updateOne(filter, update);
-    return result.modifiedCount > 0;
+    // Use matchedCount so identical updates (no actual change) don't look like failures
+    return result.matchedCount > 0;
   }
 
   /**

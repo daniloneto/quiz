@@ -40,6 +40,14 @@ export default class ExamRepository {
   }
 
   /**
+   * Count total quizzes across all exams.
+   * @returns {Promise<number>}
+   */
+  async countQuizzes(): Promise<number> {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
    * Find an exam by title.
    * @param {string} title
    * @returns {Promise<object|null>}

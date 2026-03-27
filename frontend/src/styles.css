@@ -1,0 +1,63 @@
+:root {
+  color: #102027;
+  background:
+    radial-gradient(circle at top left, rgba(17, 178, 194, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(255, 196, 77, 0.25), transparent 25%),
+    linear-gradient(180deg, #fffdf8 0%, #eef7f5 42%, #f8fbff 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(47, 128, 237, 0.1), transparent 20%),
+    radial-gradient(circle at 80% 10%, rgba(255, 166, 77, 0.15), transparent 25%);
+}
+
+.hero-panel {
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(236, 253, 245, 0.88)),
+    linear-gradient(120deg, rgba(15, 118, 110, 0.08), rgba(249, 115, 22, 0.08));
+  backdrop-filter: blur(14px);
+}
+
+.hero-panel::after {
+  content: '';
+  position: absolute;
+  inset: auto -40px -80px auto;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+}

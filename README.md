@@ -47,6 +47,11 @@ ENABLE_UPSTASH=false  # Define se o rate limiting será utilizado (true) ou desa
 # Se ENABLE_UPSTASH=true, configure as seguintes variáveis:
 UPSTASH_REDIS_REST_URL=...
 UPSTASH_REDIS_REST_TOKEN=...
+# Configuração do Amazon SES
+AWS_REGION=... # Exemplo: us-east-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_SES_FROM_ADDRESS=... # Email verificado no SES
 ```
 
 ## Instalação
@@ -141,6 +146,22 @@ Resposta:
   "questionCount": 15
 }
 ```
+
+## Backend Email via Amazon SES
+
+Este projeto agora utiliza Amazon SES (AWS SDK v3) para envio de emails.
+
+Variáveis de ambiente necessárias:
+- AWS_REGION (exemplo: us-east-1)
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_SES_FROM_ADDRESS (email verificado no SES)
+
+Sobrescrições opcionais no construtor existem em `EmailService` para `region` e `fromAddress`.
+
+Dicas para configuração do SES:
+- Verifique seu email/domínio remetente no SES.
+- Se sua conta SES estiver no sandbox, verifique os endereços de destinatários ou solicite acesso à produção.
 
 ## Licença
 

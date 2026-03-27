@@ -230,31 +230,35 @@ const crawlerController = {
       const urls = req.body.urls; // Array de URLs para fazer crawling
       
       if (!urls || !Array.isArray(urls) || urls.length === 0) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: 'URLs must be provided as an array.'
         });
+        return;
       }
 
       if (numQuestions < 1 || numQuestions > 20) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: 'Number of questions must be between 1 and 20'
         });
+        return;
       }
 
       if (quizTitle === undefined || quizTitle === null) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: 'Quiz title must be provided'
         });
+        return;
       }
 
       if (!examTitle) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: 'Exam title must be provided'
         });
+        return;
       }
 
       const collection = req.app.locals.database.collection('exams');      
@@ -277,10 +281,11 @@ const crawlerController = {
       }
 
       if (!exame) {
-        return res.status(404).json({
+        res.status(404).json({
           success: false,
           message: 'Exam not found'
         });
+        return;
       }
       
       // Processar todas as URLs e extrair o conteúdo
@@ -318,12 +323,12 @@ const crawlerController = {
           // Continuamos com as outras URLs mesmo se uma falhar
         }
       }
-      
-      if (crawledContents.length === 0) {
-        return res.status(400).json({
+        if (crawledContents.length === 0) {
+        res.status(400).json({
           success: false,
           message: 'Não foi possível extrair conteúdo válido de nenhuma das URLs fornecidas.'
         });
+        return;
       }
       
       // Combinar todos os conteúdos e dividir em chunks
@@ -347,20 +352,19 @@ const crawlerController = {
       const allQuestions = processQuestionsResponses(chunkResponses);
       
       // Limitar ao número máximo de perguntas solicitado (multiplicado pelo número de chunks)
-      const maxQuestionsPerChunk = Math.min(numQuestions, 5); // Evitar números muito altos
-      const maxTotalQuestions = maxQuestionsPerChunk * chunks.length;
+      const maxQuestionsPerChunk = Math.ceil(numQuestions / chunks.length);
+      const maxTotalQuestions = Math.min(numQuestions, maxQuestionsPerChunk * chunks.length);
       const finalQuestions = allQuestions.slice(0, maxTotalQuestions);
-      
-      if (finalQuestions.length === 0) {
-        return res.status(400).json({
+        if (finalQuestions.length === 0) {
+        res.status(400).json({
           success: false,
           message: 'Não foi possível gerar perguntas válidas a partir do conteúdo extraído.'
         });
+        return;
       }
       
       logger.info(`Total combined questions: ${finalQuestions.length}`);
-      
-      // Adicionar as perguntas ao exame
+        // Adicionar as perguntas ao exame
       await collection.updateOne(
         { 'title': examTitle },
         { $push: { quizzes: { title: quizTitle, questions: finalQuestions } } }
@@ -373,7 +377,7 @@ const crawlerController = {
       });
     } catch (err) {
       logger.error('Error processing crawl:', err);
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: 'Error processing crawl request'
       });

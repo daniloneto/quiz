@@ -20,6 +20,14 @@ export default async function handler(req, res) {
   }
   const db = await connectToDatabase();
   const repository = new MongoExamRepository(db);
+  // GET /exams/:id
+  if (slug.length === 1 && req.method === 'GET') {
+    const exam = await repository.findExamById(slug[0]);
+    if (!exam) {
+      return res.status(404).json({ message: 'Prova nÃ£o encontrada' });
+    }
+    return res.status(200).json(exam);
+  }
   // DELETE /exams/:id
   if (slug.length === 1 && req.method === 'DELETE') {
     const id = slug[0];
